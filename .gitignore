@@ -1,6 +1,12 @@
 Debug/
 debug/
 
+#*.html
+#!foo.html
+#*.[oa]
+
 *.sdf
 *.opensdf
 *.suo
+*.tlog
+*.log
