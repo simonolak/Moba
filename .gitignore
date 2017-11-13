@@ -1,7 +1,6 @@
-*/Debug/
-*/debug/
 Debug/
 debug/
 
 *.sdf
 *.opensdf
+*.suo
