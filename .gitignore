@@ -1,6 +1,6 @@
 #foo.txt
-Debug
-debug
+/Debug
+/debug
 #*.html
 #!foo.html
 #*.[oa]
