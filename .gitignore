@@ -1,11 +1,2 @@
 Debug/*
 debug/*
-#*.html
-#!foo.html
-#*.[oa]
-*.sdf
-*.ncb
-*.obj
-*.sbr
-*.tlog
-*.log
