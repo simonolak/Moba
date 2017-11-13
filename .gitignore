@@ -1,0 +1,11 @@
+#foo.txt
+Debug
+debug
+#*.html
+#!foo.html
+#*.[oa]
+*.sdf
+*.obj
+*.sbr
+*.tlog
+*.log
