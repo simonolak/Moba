@@ -716,14 +716,14 @@ void IN_Frame(void) {
   IN_JoyMove();
 
   //MARK: OlaK {{
-  //if (!s_wmv.mouseInitialized) {
-  //  if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
-  //    Com_Printf("Proceeding with delayed mouse init\n");
-  //    IN_StartupMouse();
-  //    s_wmv.mouseStartupDelayed = qfalse;
-  //  }
-  //  return;
-  //}
+  if (!s_wmv.mouseInitialized) {
+    if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
+      Com_Printf("Proceeding with delayed mouse init\n");
+      IN_StartupMouse();
+      s_wmv.mouseStartupDelayed = qfalse;
+    }
+    return;
+  }
   //}}
 
   if (cls.keyCatchers & KEYCATCH_CONSOLE) {
