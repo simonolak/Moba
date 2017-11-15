@@ -69,7 +69,7 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	if ( unchanged ) {
 		*state = *old;
 	} else {
-		MSG_ReadDeltaEntity( msg, old, state, newnum );
+		MSGReadDeltaEntity( msg, old, state, newnum );
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {
@@ -81,11 +81,10 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 
 /*
 ==================
-CL_ParsePacketEntities
-
+CLParsePacketEntities
 ==================
 */
-void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
+void CLParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
 	int			newnum;
 	entityState_t	*oldstate;
 	int			oldindex, oldnum;
@@ -117,7 +116,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		}
 
 		if ( msg->readcount > msg->cursize ) {
-			Com_Error (ERR_DROP,"CL_ParsePacketEntities: end of message");
+			Com_Error (ERR_DROP,"CLParsePacketEntities: end of message");
 		}
 
 		while ( oldnum < newnum ) {
@@ -190,14 +189,14 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 /*
 ================
-CL_ParseSnapshot
+CLParseSnapshot
 
 If the snapshot is parsed properly, it will be copied to
 cl.snap and saved in cl.snapshots[].  If the snapshot is invalid
 for any reason, no changes to the state will be made at all.
 ================
 */
-void CL_ParseSnapshot( msg_t *msg ) {
+void CLParseSnapshot( msg_t *msg ) {
 	int			len;
 	clSnapshot_t	*old;
 	clSnapshot_t	newSnap;
@@ -267,7 +266,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// read packet entities
 	SHOWNET( msg, "packet entities" );
-	CL_ParsePacketEntities( msg, old, &newSnap );
+	CLParsePacketEntities( msg, old, &newSnap );
 
 	// if not valid, dump the entire thing now that it has
 	// been properly read
@@ -381,85 +380,84 @@ void CL_SystemInfoChanged( void ) {
 
 /*
 ==================
-CL_ParseGamestate
+CLParseGamestate
 ==================
 */
-void CL_ParseGamestate( msg_t *msg ) {
-	int				i;
-	entityState_t	*es;
-	int				newnum;
-	entityState_t	nullstate;
-	int				cmd;
-	char			*s;
+void CLParseGamestate(msg_t *msg) {
+  int				i;
+  entityState_t	*es;
+  int				newnum;
+  entityState_t	nullstate;
+  int				cmd;
+  char			*s;
 
-	Con_Close();
+  Con_Close();
 
-	clc.connectPacketCount = 0;
+  clc.connectPacketCount = 0;
 
-	// wipe local client state
-	CL_ClearState();
+  // wipe local client state
+  CL_ClearState();
 
-	// a gamestate always marks a server command sequence
-	clc.serverCommandSequence = MSGReadLong( msg );
+  // a gamestate always marks a server command sequence
+  clc.serverCommandSequence = MSGReadLong(msg);
 
-	// parse all the configstrings and baselines
-	cl.gameState.dataCount = 1;	// leave a 0 at the beginning for uninitialized configstrings
-	while ( 1 ) {
-		cmd = MSGReadByte( msg );
+  // parse all the configstrings and baselines
+  cl.gameState.dataCount = 1;	// leave a 0 at the beginning for uninitialized configstrings
+  while (1) {
+    cmd = MSGReadByte(msg);
 
-		if ( cmd == svc_EOF ) {
-			break;
-		}
-		
-		if ( cmd == svc_configstring ) {
-			int		len;
+    if (cmd == svc_EOF) {
+      break;
+    }
 
-			i = MSG_ReadShort( msg );
-			if ( i < 0 || i >= MAX_CONFIGSTRINGS ) {
-				Com_Error( ERR_DROP, "configstring > MAX_CONFIGSTRINGS" );
-			}
-			s = MSG_ReadBigString( msg );
-			len = strlen( s );
+    if (cmd == svc_configstring) {
+      int len;
 
-			if ( len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS ) {
-				Com_Error( ERR_DROP, "MAX_GAMESTATE_CHARS exceeded" );
-			}
+      i = MSG_ReadShort(msg);
+      if (i < 0 || i >= MAX_CONFIGSTRINGS) {
+        Com_Error(ERR_DROP, "configstring > MAX_CONFIGSTRINGS");
+      }
+      s = MSG_ReadBigString(msg);
+      len = strlen(s);
 
-			// append it to the gameState string buffer
-			cl.gameState.stringOffsets[ i ] = cl.gameState.dataCount;
-			Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, s, len + 1 );
-			cl.gameState.dataCount += len + 1;
-		} else if ( cmd == svc_baseline ) {
-			newnum = MSGReadBits( msg, GENTITYNUM_BITS );
-			if ( newnum < 0 || newnum >= MAX_GENTITIES ) {
-				Com_Error( ERR_DROP, "Baseline number out of range: %i", newnum );
-			}
-			Com_Memset (&nullstate, 0, sizeof(nullstate));
-			es = &cl.entityBaselines[ newnum ];
-			MSG_ReadDeltaEntity( msg, &nullstate, es, newnum );
-		} else {
-			Com_Error( ERR_DROP, "CL_ParseGamestate: bad command byte" );
-		}
-	}
+      if (len + 1 + cl.gameState.dataCount > MAX_GAMESTATE_CHARS) {
+        Com_Error(ERR_DROP, "MAX_GAMESTATE_CHARS exceeded");
+      }
 
-	clc.clientNum = MSGReadLong(msg);
-	// read the checksum feed
-	clc.checksumFeed = MSGReadLong( msg );
+      // append it to the gameState string buffer
+      cl.gameState.stringOffsets[i] = cl.gameState.dataCount;
+      Com_Memcpy(cl.gameState.stringData + cl.gameState.dataCount, s, len + 1);
+      cl.gameState.dataCount += len + 1;
+    } else if (cmd == svc_baseline) {
+      newnum = MSGReadBits(msg, GENTITYNUM_BITS);
+      if (newnum < 0 || newnum >= MAX_GENTITIES) {
+        Com_Error(ERR_DROP, "Baseline number out of range: %i", newnum);
+      }
+      Com_Memset(&nullstate, 0, sizeof(nullstate));
+      es = &cl.entityBaselines[newnum];
+      MSGReadDeltaEntity(msg, &nullstate, es, newnum);
+    } else {
+      Com_Error(ERR_DROP, "CLParseGamestate: bad command byte");
+    }
+  }
 
-	// parse serverId and other cvars
-	CL_SystemInfoChanged();
+  clc.clientNum = MSGReadLong(msg);
+  // read the checksum feed
+  clc.checksumFeed = MSGReadLong(msg);
 
-	// reinitialize the filesystem if the game directory has changed
-  FS_ConditionalRestart( clc.checksumFeed );
+  // parse serverId and other cvars
+  CL_SystemInfoChanged();
 
-	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
-	// cgame
-	CL_InitDownloads();
+  // reinitialize the filesystem if the game directory has changed
+  FS_ConditionalRestart(clc.checksumFeed);
 
-	// make sure the game starts
-	Cvar_Set( "cl_paused", "0" );
+  // This used to call CL_StartHunkUsers, but now we enter the download state before loading the
+  // cgame
+  CL_InitDownloads();
+
+  // make sure the game starts
+  Cvar_Set("cl_paused", "0");
 }
-
 
 //=====================================================================
 
@@ -637,10 +635,10 @@ void CLParseServerMessage(msg_t *msg) {
       CLParseCommandString(msg);
       break;
     case svc_gamestate:
-      CL_ParseGamestate(msg);
+      CLParseGamestate(msg);
       break;
     case svc_snapshot:
-      CL_ParseSnapshot(msg);
+      CLParseSnapshot(msg);
       break;
     case svc_download:
       CL_ParseDownload(msg);
