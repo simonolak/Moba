@@ -431,7 +431,7 @@ int CL_CgameSystemCalls( int *args ) {
 		Cvar_Update( VMA(1) );
 		return 0;
 	case CG_CVAR_SET:
-		Cvar_Set( VMA(1), VMA(2) );
+		CvarSet( VMA(1), VMA(2) );
 		return 0;
 	case CG_CVAR_VARIABLESTRINGBUFFER:
 		Cvar_VariableStringBuffer( VMA(1), VMA(2), args[3] );
@@ -901,7 +901,7 @@ void CL_FirstSnapshot( void ) {
 	// after loading
 	if ( cl_activeAction->string[0] ) {
 		Cbuf_AddText( cl_activeAction->string );
-		Cvar_Set( "activeAction", "" );
+		CvarSet( "activeAction", "" );
 	}
 	
 	Sys_BeginProfiling();

@@ -352,9 +352,9 @@ void Cbuf_AddText( const char *text );
 void Cbuf_ExecuteText( int exec_when, const char *text );
 // this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 
-void Cbuf_Execute (void);
+void CBufExecute (void);
 // Pulls off \n terminated lines of text from the command buffer and sends
-// them through Cmd_ExecuteString.  Stops when the buffer is empty.
+// them through CmdExecuteString.  Stops when the buffer is empty.
 // Normally called once per frame, but may be explicitly invoked.
 // Do not call inside a command function, or current args will be destroyed.
 
@@ -395,7 +395,7 @@ void	CmdTokenizeString( const char *text );
 // Takes a null terminated string.  Does not need to be /n terminated.
 // breaks the string up into arg tokens.
 
-void	Cmd_ExecuteString( const char *text );
+void	CmdExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 
@@ -439,14 +439,14 @@ void	Cvar_Register( vmCvar_t *vmCvar, const char *varName, const char *defaultVa
 void	Cvar_Update( vmCvar_t *vmCvar );
 // updates an interpreted modules' version of a cvar
 
-void 	Cvar_Set( const char *var_name, const char *value );
+void 	CvarSet( const char *var_name, const char *value );
 // will create the variable with no flags if it doesn't exist
 
 void Cvar_SetLatched( const char *var_name, const char *value);
 // don't set the cvar immediately
 
 void	Cvar_SetValue( const char *var_name, float value );
-// expands value to a string and calls Cvar_Set
+// expands value to a string and calls CvarSet
 
 float	Cvar_VariableValue( const char *var_name );
 int		Cvar_VariableIntegerValue( const char *var_name );
@@ -464,8 +464,8 @@ void 	Cvar_Reset( const char *var_name );
 void	Cvar_SetCheatState( void );
 // reset all testing vars to a safe value
 
-qboolean Cvar_Command( void );
-// called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
+qboolean CvarCommand( void );
+// called by CmdExecuteString when Cmd_Argv(0) doesn't match a known
 // command.  Returns true if the command was a variable reference that
 // was handled. (print or change)
 
@@ -878,8 +878,8 @@ void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
 // server interface
 //
 void SV_Init( void );
-void SV_Shutdown( char *finalmsg );
-void SV_Frame( int msec );
+void SVShutdown( char *finalmsg );
+void SVFrame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 qboolean SV_GameCommand( void );
 

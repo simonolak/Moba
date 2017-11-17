@@ -369,11 +369,11 @@ void CL_SystemInfoChanged( void ) {
 			gameSet = qtrue;
 		}
 
-		Cvar_Set( key, value );
+		CvarSet( key, value );
 	}
 	// if game folder should not be set and it is set at the client side
 	if ( !gameSet && *Cvar_VariableString("fs_game") ) {
-		Cvar_Set( "fs_game", "" );
+		CvarSet( "fs_game", "" );
 	}
 	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
 }
@@ -456,101 +456,97 @@ void CLParseGamestate(msg_t *msg) {
   CL_InitDownloads();
 
   // make sure the game starts
-  Cvar_Set("cl_paused", "0");
+  CvarSet("cl_paused", "0");
 }
 
 //=====================================================================
 
 /*
 =====================
-CL_ParseDownload
-
+CLParseDownload
 A download message has been received from the server
 =====================
 */
-void CL_ParseDownload ( msg_t *msg ) {
-	int		size;
-	unsigned char data[MAX_MSGLEN];
-	int block;
+void CLParseDownload(msg_t *msg) {
+  int		size;
+  unsigned char data[MAX_MSGLEN];
+  int block;
 
-	// read the data
-	block = MSG_ReadShort ( msg );
+  // read the data
+  block = MSG_ReadShort(msg);
 
-	if ( !block )
-	{
-		// block zero is special, contains file size
-		clc.downloadSize = MSGReadLong ( msg );
+  if (!block) {
+    // block zero is special, contains file size
+    clc.downloadSize = MSGReadLong(msg);
 
-		Cvar_SetValue( "cl_downloadSize", clc.downloadSize );
+    Cvar_SetValue("cl_downloadSize", clc.downloadSize);
 
-		if (clc.downloadSize < 0)
-		{
-			Com_Error(ERR_DROP, MSGReadString( msg ) );
-			return;
-		}
-	}
+    if (clc.downloadSize < 0) {
+      Com_Error(ERR_DROP, MSGReadString(msg));
+      return;
+    }
+  }
 
-	size = MSG_ReadShort ( msg );
-	if (size > 0)
-		MSG_ReadData( msg, data, size );
+  size = MSG_ReadShort(msg);
+  if (size > 0)
+    MSG_ReadData(msg, data, size);
 
-	if (clc.downloadBlock != block) {
-		Com_DPrintf( "CL_ParseDownload: Expected block %d, got %d\n", clc.downloadBlock, block);
-		return;
-	}
+  if (clc.downloadBlock != block) {
+    Com_DPrintf("CLParseDownload: Expected block %d, got %d\n", clc.downloadBlock, block);
+    return;
+  }
 
-	// open the file if not opened yet
-	if (!clc.download)
-	{
-		if (!*clc.downloadTempName) {
-			Com_Printf("Server sending download, but no download was requested\n");
-			CL_AddReliableCommand( "stopdl" );
-			return;
-		}
+  // open the file if not opened yet
+  if (!clc.download) {
+    if (!*clc.downloadTempName) {
+      Com_Printf("Server sending download, but no download was requested\n");
+      CL_AddReliableCommand("stopdl");
+      return;
+    }
 
-		clc.download = FS_SV_FOpenFileWrite( clc.downloadTempName );
+    clc.download = FS_SV_FOpenFileWrite(clc.downloadTempName);
 
-		if (!clc.download) {
-			Com_Printf( "Could not create %s\n", clc.downloadTempName );
-			CL_AddReliableCommand( "stopdl" );
-			CL_NextDownload();
-			return;
-		}
-	}
+    if (!clc.download) {
+      Com_Printf("Could not create %s\n", clc.downloadTempName);
+      CL_AddReliableCommand("stopdl");
+      CL_NextDownload();
+      return;
+    }
+  }
 
-	if (size)
-		FS_Write( data, size, clc.download );
+  if (size)
+    FS_Write(data, size, clc.download);
 
-	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock) );
-	clc.downloadBlock++;
+  CL_AddReliableCommand(va("nextdl %d", clc.downloadBlock));
+  clc.downloadBlock++;
 
-	clc.downloadCount += size;
+  clc.downloadCount += size;
 
-	// So UI gets access to it
-	Cvar_SetValue( "cl_downloadCount", clc.downloadCount );
+  // So UI gets access to it
+  Cvar_SetValue("cl_downloadCount", clc.downloadCount);
 
-	if (!size) { // A zero length block means EOF
-		if (clc.download) {
-			FS_FCloseFile( clc.download );
-			clc.download = 0;
+  if (!size) { // A zero length block means EOF
+    if (clc.download) {
+      FS_FCloseFile(clc.download);
+      clc.download = 0;
 
-			// rename the file
-			FS_SV_Rename ( clc.downloadTempName, clc.downloadName );
-		}
-		*clc.downloadTempName = *clc.downloadName = 0;
-		Cvar_Set( "cl_downloadName", "" );
+      // rename the file
+      FS_SV_Rename(clc.downloadTempName, clc.downloadName);
+    }
+    *clc.downloadTempName = *clc.downloadName = 0;
+    CvarSet("cl_downloadName", "");
 
-		// send intentions now
-		// We need this because without it, we would hold the last nextdl and then start
-		// loading right away.  If we take a while to load, the server is happily trying
-		// to send us that last block over and over.
-		// Write it twice to help make sure we acknowledge the download
-		CL_WritePacket();
-		CL_WritePacket();
+    // send intentions now
+    // We need this because without it, we would hold the last nextdl and then start
+    // loading right away.  If we take a while to load, the server is happily trying
+    // to send us that last block over and over.
+    // Write it twice to help make sure we acknowledge the download
+    CL_WritePacket();
+    CL_WritePacket();
 
-		// get another file if needed
-		CL_NextDownload ();
-	}
+    // get another file if needed
+    CL_NextDownload();
+  }
 }
 
 /*
@@ -641,7 +637,7 @@ void CLParseServerMessage(msg_t *msg) {
       CLParseSnapshot(msg);
       break;
     case svc_download:
-      CL_ParseDownload(msg);
+      CLParseDownload(msg);
       break;
     }
   }

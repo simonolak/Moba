@@ -246,7 +246,7 @@ void SV_MasterHeartbeat( void ) {
 				// if the address failed to resolve, clear it
 				// so we don't take repeated dns hits
 				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
-				Cvar_Set( sv_master[i]->name, "" );
+				CvarSet( sv_master[i]->name, "" );
 				sv_master[i]->modified = qfalse;
 				continue;
 			}
@@ -482,7 +482,7 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 		
 		Q_strcat( remaining, sizeof(remaining), cmd_aux);
 		
-		Cmd_ExecuteString (remaining);
+		CmdExecuteString (remaining);
 
 	}
 
@@ -708,147 +708,146 @@ void SV_CheckTimeouts( void ) {
 
 /*
 ==================
-SV_CheckPaused
+SVCheckPaused
 ==================
 */
-qboolean SV_CheckPaused( void ) {
-	int		count;
-	client_t	*cl;
-	int		i;
+qboolean SVCheckPaused(void) {
+  int		count;
+  client_t	*cl;
+  int		i;
 
-	if ( !cl_paused->integer ) {
-		return qfalse;
-	}
+  if (!cl_paused->integer) {
+    return qfalse;
+  }
 
-	// only pause if there is just a single client connected
-	count = 0;
-	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
-		if ( cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT ) {
-			count++;
-		}
-	}
+  // only pause if there is just a single client connected
+  count = 0;
+  for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
+    if (cl->state >= CS_CONNECTED && cl->netchan.remoteAddress.type != NA_BOT) {
+      count++;
+    }
+  }
 
-	if ( count > 1 ) {
-		// don't pause
-		if (sv_paused->integer)
-			Cvar_Set("sv_paused", "0");
-		return qfalse;
-	}
+  if (count > 1) {
+    // don't pause
+    if (sv_paused->integer)
+      CvarSet("sv_paused", "0");
+    return qfalse;
+  }
 
-	if (!sv_paused->integer)
-		Cvar_Set("sv_paused", "1");
-	return qtrue;
+  if (!sv_paused->integer)
+    CvarSet("sv_paused", "1");
+  return qtrue;
 }
 
 /*
 ==================
 Player movement occurs as a result of packet events, which
-happen before SV_Frame is called
+happen before SVFrame is called
 ==================
 */
-void SV_Frame(int msec) {
-	int		frameMsec;
-	int		startTime;
+void SVFrame(int msec) {
+  int frameMsec;
+  int startTime;
 
-	// the menu kills the server with this cvar
-	if ( sv_killserver->integer ) {
-		SV_Shutdown ("Server was killed.\n");
-		Cvar_Set( "sv_killserver", "0" );
-		return;
-	}
+  // the menu kills the server with this cvar
+  if (sv_killserver->integer) {
+    SVShutdown("Server was killed.\n");
+    CvarSet("sv_killserver", "0");
+    return;
+  }
 
-	if ( !com_sv_running->integer ) {
-		return;
-	}
+  if (!com_sv_running->integer) {
+    return;
+  }
 
-	// allow pause if only the local client is connected
-	if ( SV_CheckPaused() ) {
-		return;
-	}
+  // allow pause if only the local client is connected
+  if (SVCheckPaused()) {
+    return;
+  }
 
-	// if it isn't time for the next frame, do nothing
-	if ( sv_fps->integer < 1 ) {
-		Cvar_Set( "sv_fps", "10" );
-	}
-	frameMsec = 1000 / sv_fps->integer ;
+  // if it isn't time for the next frame, do nothing
+  if (sv_fps->integer < 1) {
+    CvarSet("sv_fps", "10");
+  }
+  frameMsec = 1000 / sv_fps->integer;
 
-	sv.timeResidual += msec;
+  sv.timeResidual += msec;
 
   if (!com_dedicated->integer)
-    SV_BotFrame( svs.time + sv.timeResidual );
+    SVBotFrame(svs.time + sv.timeResidual);
 
-	if ( com_dedicated->integer && sv.timeResidual < frameMsec ) {
-		// NET_Sleep will give the OS time slices until either get a packet
-		// or time enough for a server frame has gone by
-		NET_Sleep(frameMsec - sv.timeResidual);
-		return;
-	}
+  if (com_dedicated->integer && sv.timeResidual < frameMsec) {
+    // NET_Sleep will give the OS time slices until either get a packet
+    // or time enough for a server frame has gone by
+    NET_Sleep(frameMsec - sv.timeResidual);
+    return;
+  }
 
-	// if time is about to hit the 32nd bit, kick all clients
-	// and clear sv.time, rather
-	// than checking for negative time wraparound everywhere.
-	// 2giga-milliseconds = 23 days, so it won't be too often
-	if ( svs.time > 0x70000000 ) {
-		SV_Shutdown( "Restarting server due to time wrapping" );
-		Cbuf_AddText( "vstr nextmap\n" );
-		return;
-	}
-	// this can happen considerably earlier when lots of clients play and the map doesn't change
-	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
-		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
-		Cbuf_AddText( "vstr nextmap\n" );
-		return;
-	}
+  // if time is about to hit the 32nd bit, kick all clients
+  // and clear sv.time, rather
+  // than checking for negative time wraparound everywhere.
+  // 2giga-milliseconds = 23 days, so it won't be too often
+  if (svs.time > 0x70000000) {
+    SVShutdown("Restarting server due to time wrapping");
+    Cbuf_AddText("vstr nextmap\n");
+    return;
+  }
+  // this can happen considerably earlier when lots of clients play and the map doesn't change
+  if (svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities) {
+    SVShutdown("Restarting server due to numSnapshotEntities wrapping");
+    Cbuf_AddText("vstr nextmap\n");
+    return;
+  }
 
-	if( sv.restartTime && svs.time >= sv.restartTime ) {
-		sv.restartTime = 0;
-		Cbuf_AddText( "map_restart 0\n" );
-		return;
-	}
+  if (sv.restartTime && svs.time >= sv.restartTime) {
+    sv.restartTime = 0;
+    Cbuf_AddText("map_restart 0\n");
+    return;
+  }
 
-	// update infostrings if anything has been changed
-	if ( cvar_modifiedFlags & CVAR_SERVERINFO ) {
-		SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SERVERINFO;
-	}
-	if ( cvar_modifiedFlags & CVAR_SYSTEMINFO ) {
-		SV_SetConfigstring( CS_SYSTEMINFO, Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
-		cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
-	}
+  // update infostrings if anything has been changed
+  if (cvar_modifiedFlags & CVAR_SERVERINFO) {
+    SV_SetConfigstring(CS_SERVERINFO, Cvar_InfoString(CVAR_SERVERINFO));
+    cvar_modifiedFlags &= ~CVAR_SERVERINFO;
+  }
+  if (cvar_modifiedFlags & CVAR_SYSTEMINFO) {
+    SV_SetConfigstring(CS_SYSTEMINFO, Cvar_InfoString_Big(CVAR_SYSTEMINFO));
+    cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
+  }
 
-	if ( com_speeds->integer ) {
-		startTime = SysMilliseconds ();
-	} else {
-		startTime = 0;	// quite a compiler warning
-	}
+  if (com_speeds->integer) {
+    startTime = SysMilliseconds();
+  } else {
+    startTime = 0;	// quite a compiler warning
+  }
 
-	// update ping based on the all received frames
-	SV_CalcPings();
+  // update ping based on the all received frames
+  SV_CalcPings();
 
-	if (com_dedicated->integer) SV_BotFrame( svs.time );
+  if (com_dedicated->integer) SVBotFrame(svs.time);
 
-	// run the game simulation in chunks
-	while ( sv.timeResidual >= frameMsec ) {
-		sv.timeResidual -= frameMsec;
-		svs.time += frameMsec;
+  // run the game simulation in chunks
+  while (sv.timeResidual >= frameMsec) {
+    sv.timeResidual -= frameMsec;
+    svs.time += frameMsec;
 
-		// let everything in the world think and move
-		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
-	}
+    // let everything in the world think and move
+    VM_Call(gvm, GAME_RUN_FRAME, svs.time);
+  }
 
-	if ( com_speeds->integer ) {
-		time_game = SysMilliseconds () - startTime;
-	}
+  if (com_speeds->integer) {
+    time_game = SysMilliseconds() - startTime;
+  }
 
-	// check timeouts
-	SV_CheckTimeouts();
+  // check timeouts
+  SV_CheckTimeouts();
 
-	// send messages back to the clients
-	SV_SendClientMessages();
+  // send messages back to the clients
+  SV_SendClientMessages();
 
-	// send a heartbeat to the master if needed
-	SV_MasterHeartbeat();
+  // send a heartbeat to the master if needed
+  SV_MasterHeartbeat();
 }
 
 //============================================================================
-

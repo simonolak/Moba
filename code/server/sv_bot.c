@@ -426,10 +426,10 @@ void BotClientCommand( int client, char *command ) {
 
 /*
 ==================
-SV_BotFrame
+SVBotFrame
 ==================
 */
-void SV_BotFrame( int time ) {
+void SVBotFrame( int time ) {
 	if (!bot_enable) return;
 	//NOTE: maybe the game is already shutdown
 	if (!gvm) return;

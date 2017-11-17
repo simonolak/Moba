@@ -162,19 +162,19 @@ static void AssertCvarRange( cvar_t *cv, float minVal, float maxVal, qboolean sh
 		if ( ( int ) cv->value != cv->integer )
 		{
 			ri.Printf( PRINT_WARNING, "WARNING: cvar '%s' must be integral (%f)\n", cv->name, cv->value );
-			ri.Cvar_Set( cv->name, va( "%d", cv->integer ) );
+			ri.CvarSet( cv->name, va( "%d", cv->integer ) );
 		}
 	}
 
 	if ( cv->value < minVal )
 	{
 		ri.Printf( PRINT_WARNING, "WARNING: cvar '%s' out of range (%f < %f)\n", cv->name, cv->value, minVal );
-		ri.Cvar_Set( cv->name, va( "%f", minVal ) );
+		ri.CvarSet( cv->name, va( "%f", minVal ) );
 	}
 	else if ( cv->value > maxVal )
 	{
 		ri.Printf( PRINT_WARNING, "WARNING: cvar '%s' out of range (%f > %f)\n", cv->name, cv->value, maxVal );
-		ri.Cvar_Set( cv->name, va( "%f", maxVal ) );
+		ri.CvarSet( cv->name, va( "%f", maxVal ) );
 	}
 }
 

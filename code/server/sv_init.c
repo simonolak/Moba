@@ -199,9 +199,9 @@ void SV_BoundMaxClients( int minimum ) {
 	sv_maxclients->modified = qfalse;
 
 	if ( sv_maxclients->integer < minimum ) {
-		Cvar_Set( "sv_maxclients", va("%i", minimum) );
+		CvarSet( "sv_maxclients", va("%i", minimum) );
 	} else if ( sv_maxclients->integer > MAX_CLIENTS ) {
-		Cvar_Set( "sv_maxclients", va("%i", MAX_CLIENTS) );
+		CvarSet( "sv_maxclients", va("%i", MAX_CLIENTS) );
 	}
 }
 
@@ -231,7 +231,7 @@ void SV_Startup( void ) {
 	}
 	svs.initialized = qtrue;
 
-	Cvar_Set( "sv_running", "1" );
+	CvarSet( "sv_running", "1" );
 }
 
 
@@ -393,8 +393,8 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
-	Cvar_Set( "nextmap", "map_restart 0");
-//	Cvar_Set( "nextmap", va("map %s", server) );
+	CvarSet( "nextmap", "map_restart 0");
+//	CvarSet( "nextmap", va("map %s", server) );
 
 	// wipe the entire per-level structure
 	SV_ClearServer();
@@ -403,7 +403,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	}
 
 	// make sure we are not paused
-	Cvar_Set("cl_paused", "0");
+	CvarSet("cl_paused", "0");
 
 	// get a new checksum feed and restart the file system
 	srand(Com_Milliseconds());
@@ -413,15 +413,15 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
 
 	// set serverinfo visible name
-	Cvar_Set( "mapname", server );
+	CvarSet( "mapname", server );
 
-	Cvar_Set( "sv_mapChecksum", va("%i",checksum) );
+	CvarSet( "sv_mapChecksum", va("%i",checksum) );
 
 	// serverid should be different each time
 	sv.serverId = com_frameTime;
 	sv.restartedServerId = sv.serverId; // I suppose the init here is just to be safe
 	sv.checksumFeedServerId = sv.serverId;
-	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	CvarSet( "sv_serverid", va("%i", sv.serverId ) );
 
 	// clear physics interaction links
 	SV_ClearWorld ();
@@ -440,7 +440,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// run a few frames to allow everything to settle
 	for ( i = 0 ;i < 3 ; i++ ) {
 		VM_Call( gvm, GAME_RUN_FRAME, svs.time );
-		SV_BotFrame( svs.time );
+		SVBotFrame( svs.time );
 		svs.time += 100;
 	}
 
@@ -496,19 +496,19 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// run another frame to allow things to look at all the players
 	VM_Call( gvm, GAME_RUN_FRAME, svs.time );
-	SV_BotFrame( svs.time );
+	SVBotFrame( svs.time );
 	svs.time += 100;
 
 	if ( sv_pure->integer ) {
 		// the server sends these to the clients so they will only
 		// load pk3s also loaded at the server
 		p = FS_LoadedPakChecksums();
-		Cvar_Set( "sv_paks", p );
+		CvarSet( "sv_paks", p );
 		if (strlen(p) == 0) {
 			Com_Printf( "WARNING: sv_pure set but no PK3 files loaded\n" );
 		}
 		p = FS_LoadedPakNames();
-		Cvar_Set( "sv_pakNames", p );
+		CvarSet( "sv_pakNames", p );
 
 		// if a dedicated pure server we need to touch the cgame because it could be in a
 		// seperate pk3 file and the client will need to load the latest cgame.qvm
@@ -517,15 +517,15 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 		}
 	}
 	else {
-		Cvar_Set( "sv_paks", "" );
-		Cvar_Set( "sv_pakNames", "" );
+		CvarSet( "sv_paks", "" );
+		CvarSet( "sv_pakNames", "" );
 	}
 	// the server sends these to the clients so they can figure
 	// out which pk3s should be auto-downloaded
 	p = FS_ReferencedPakChecksums();
-	Cvar_Set( "sv_referencedPaks", p );
+	CvarSet( "sv_referencedPaks", p );
 	p = FS_ReferencedPakNames();
-	Cvar_Set( "sv_referencedPakNames", p );
+	CvarSet( "sv_referencedPakNames", p );
 
 	// save systeminfo and serverinfo strings
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
@@ -622,7 +622,7 @@ void SV_Init(void) {
 ==================
 SV_FinalMessage
 
-Used by SV_Shutdown to send a final message to all
+Used by SVShutdown to send a final message to all
 connected clients before the server goes down.  The messages are sent immediately,
 not just stuck on the outgoing message list, because the server is going
 to totally exit after returning from this function.
@@ -652,13 +652,12 @@ void SV_FinalMessage( char *message ) {
 
 /*
 ================
-SV_Shutdown
-
+SVShutdown
 Called when each game quits,
 before Sys_Quit or Sys_Error
 ================
 */
-void SV_Shutdown( char *finalmsg ) {
+void SVShutdown( char *finalmsg ) {
 	if ( !com_sv_running || !com_sv_running->integer ) {
 		return;
 	}
@@ -682,8 +681,8 @@ void SV_Shutdown( char *finalmsg ) {
 	}
 	Com_Memset( &svs, 0, sizeof( svs ) );
 
-	Cvar_Set( "sv_running", "0" );
-	Cvar_Set("ui_singlePlayerActive", "0");
+	CvarSet( "sv_running", "0" );
+	CvarSet("ui_singlePlayerActive", "0");
 
 	Com_Printf( "---------------------------\n" );
 

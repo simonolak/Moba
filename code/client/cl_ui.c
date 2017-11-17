@@ -790,7 +790,7 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_CVAR_SET:
-		Cvar_Set( VMA(1), VMA(2) );
+		CvarSet( VMA(1), VMA(2) );
 		return 0;
 
 	case UI_CVAR_VARIABLEVALUE:

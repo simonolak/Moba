@@ -1047,17 +1047,17 @@ void Sys_Init(void) {
     Sys_Error("Quake3 doesn't run on Win32s");
 
   if (g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT) {
-    Cvar_Set("arch", "winnt");
+    CvarSet("arch", "winnt");
   } else if (g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS) {
     if (LOWORD(g_wv.osversion.dwBuildNumber) >= WIN98_BUILD_NUMBER) {
-      Cvar_Set("arch", "win98");
+      CvarSet("arch", "win98");
     } else if (LOWORD(g_wv.osversion.dwBuildNumber) >= OSR2_BUILD_NUMBER) {
-      Cvar_Set("arch", "win95 osr2.x");
+      CvarSet("arch", "win95 osr2.x");
     } else {
-      Cvar_Set("arch", "win95");
+      CvarSet("arch", "win95");
     }
   } else {
-    Cvar_Set("arch", "unknown Windows variant");
+    CvarSet("arch", "unknown Windows variant");
   }
 
   // save out a couple things in rom cvars for the renderer to access
@@ -1075,25 +1075,25 @@ void Sys_Init(void) {
 
     switch (cpuid) {
     case CPUID_GENERIC:
-      Cvar_Set("sys_cpustring", "generic");
+      CvarSet("sys_cpustring", "generic");
       break;
     case CPUID_INTEL_UNSUPPORTED:
-      Cvar_Set("sys_cpustring", "x86 (pre-Pentium)");
+      CvarSet("sys_cpustring", "x86 (pre-Pentium)");
       break;
     case CPUID_INTEL_PENTIUM:
-      Cvar_Set("sys_cpustring", "x86 (P5/PPro, non-MMX)");
+      CvarSet("sys_cpustring", "x86 (P5/PPro, non-MMX)");
       break;
     case CPUID_INTEL_MMX:
-      Cvar_Set("sys_cpustring", "x86 (P5/Pentium2, MMX)");
+      CvarSet("sys_cpustring", "x86 (P5/Pentium2, MMX)");
       break;
     case CPUID_INTEL_KATMAI:
-      Cvar_Set("sys_cpustring", "Intel Pentium III");
+      CvarSet("sys_cpustring", "Intel Pentium III");
       break;
     case CPUID_AMD_3DNOW:
-      Cvar_Set("sys_cpustring", "AMD w/ 3DNow!");
+      CvarSet("sys_cpustring", "AMD w/ 3DNow!");
       break;
     case CPUID_AXP:
-      Cvar_Set("sys_cpustring", "Alpha AXP");
+      CvarSet("sys_cpustring", "Alpha AXP");
       break;
     default:
       Com_Error(ERR_FATAL, "Unknown cpu type %d\n", cpuid);
@@ -1121,7 +1121,7 @@ void Sys_Init(void) {
   Cvar_SetValue("sys_cpuid", cpuid);
   Com_Printf("%s\n", Cvar_VariableString("sys_cpustring"));
 
-  Cvar_Set("username", Sys_GetCurrentUser());
+  CvarSet("username", Sys_GetCurrentUser());
 
   IN_Init();		// FIXME: not in dedicated?
 }

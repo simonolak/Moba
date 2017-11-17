@@ -506,7 +506,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 		state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
 		*state = ent->s;
 		svs.nextSnapshotEntities++;
-		// this should never hit, map should always be restarted first in SV_Frame
+		// this should never hit, map should always be restarted first in SVFrame
 		if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) {
 			Com_Error(ERR_FATAL, "svs.nextSnapshotEntities wrapped");
 		}
@@ -535,7 +535,7 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 	rate = client->rate;
 	if ( sv_maxRate->integer ) {
 		if ( sv_maxRate->integer < 1000 ) {
-			Cvar_Set( "sv_MaxRate", "1000" );
+			CvarSet( "sv_MaxRate", "1000" );
 		}
 		if ( sv_maxRate->integer < rate ) {
 			rate = sv_maxRate->integer;

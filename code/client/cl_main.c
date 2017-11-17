@@ -96,7 +96,7 @@ int serverStatusCount;
 void hA3Dg_ExportRenderGeom (refexport_t *incoming_re);
 #endif
 
-extern void SV_BotFrame( int time );
+extern void SVBotFrame( int time );
 void CL_CheckForResend( void );
 void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
@@ -169,26 +169,24 @@ CLIENT SIDE DEMO RECORDING
 
 /*
 ====================
-CL_WriteDemoMessage
-
+CLWriteDemoMessage
 Dumps the current net message, prefixed by the length
 ====================
 */
-void CL_WriteDemoMessage ( msg_t *msg, int headerBytes ) {
-  int		len, swlen;
+void CLWriteDemoMessage(msg_t *msg, int headerBytes) {
+  int len, swlen;
 
   // write the packet sequence
   len = clc.serverMessageSequence;
-  swlen = LittleLong( len );
-  FS_Write (&swlen, 4, clc.demofile);
+  swlen = LittleLong(len);
+  FS_Write(&swlen, 4, clc.demofile);
 
   // skip the packet sequencing information
   len = msg->cursize - headerBytes;
   swlen = LittleLong(len);
-  FS_Write (&swlen, 4, clc.demofile);
-  FS_Write ( msg->data + headerBytes, len, clc.demofile );
+  FS_Write(&swlen, 4, clc.demofile);
+  FS_Write(msg->data + headerBytes, len, clc.demofile);
 }
-
 
 /*
 ====================
@@ -503,7 +501,7 @@ void CL_PlayDemo_f( void ) {
   }
 
   // make sure a local server is killed
-  Cvar_Set( "sv_killserver", "1" );
+  CvarSet( "sv_killserver", "1" );
 
   CL_Disconnect( qtrue );
 
@@ -589,10 +587,10 @@ void CL_NextDemo( void ) {
     return;
   }
 
-  Cvar_Set ("nextdemo","");
+  CvarSet ("nextdemo","");
   Cbuf_AddText (v);
   Cbuf_AddText ("\n");
-  Cbuf_Execute();
+  CBufExecute();
 }
 
 
@@ -679,7 +677,7 @@ void CL_MapLoading( void ) {
     SCR_UpdateScreen();
   } else {
     // clear nextmap so the cinematic shutdown doesn't execute it
-    Cvar_Set( "nextmap", "" );
+    CvarSet( "nextmap", "" );
     CL_Disconnect( qtrue );
     Q_strncpyz( cls.servername, "localhost", sizeof(cls.servername) );
     cls.state = CA_CHALLENGING;		// so the connect screen is drawn
@@ -720,7 +718,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
   }
 
   // shutting down the client so enter full screen ui mode
-  Cvar_Set("r_uiFullScreen", "1");
+  CvarSet("r_uiFullScreen", "1");
 
   if ( clc.demorecording ) {
     CL_StopRecord_f ();
@@ -731,7 +729,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
     clc.download = 0;
   }
   *clc.downloadTempName = *clc.downloadName = 0;
-  Cvar_Set( "cl_downloadName", "" );
+  CvarSet( "cl_downloadName", "" );
 
   if ( clc.demofile ) {
     FS_FCloseFile( clc.demofile );
@@ -762,7 +760,7 @@ void CL_Disconnect( qboolean showMainMenu ) {
   cls.state = CA_DISCONNECTED;
 
   // allow cheats locally
-  Cvar_Set( "sv_cheats", "1" );
+  CvarSet( "sv_cheats", "1" );
 
   // not connected to a pure server anymore
   cl_connectedToPureServer = qfalse;
@@ -989,7 +987,7 @@ CL_Disconnect_f
 */
 void CL_Disconnect_f( void ) {
   SCR_StopCinematic();
-  Cvar_Set("ui_singlePlayerActive", "0");
+  CvarSet("ui_singlePlayerActive", "0");
   if ( cls.state != CA_DISCONNECTED && cls.state != CA_CINEMATIC ) {
     Com_Error (ERR_DISCONNECT, "Disconnected from server");
   }
@@ -1007,7 +1005,7 @@ void CL_Reconnect_f( void ) {
     Com_Printf( "Can't reconnect to localhost.\n" );
     return;
   }
-  Cvar_Set("ui_singlePlayerActive", "0");
+  CvarSet("ui_singlePlayerActive", "0");
   Cbuf_AddText( va("connect %s\n", cls.servername ) );
 }
 
@@ -1025,7 +1023,7 @@ void CL_Connect_f( void ) {
     return;	
   }
 
-  Cvar_Set("ui_singlePlayerActive", "0");
+  CvarSet("ui_singlePlayerActive", "0");
 
   // fire a message off to the motd server
   CL_RequestMotd();
@@ -1037,12 +1035,12 @@ void CL_Connect_f( void ) {
 
   if ( com_sv_running->integer && !strcmp( server, "localhost" ) ) {
     // if running a local server, kill it
-    SV_Shutdown( "Server quit\n" );
+    SVShutdown( "Server quit\n" );
   }
 
   // make sure a local server is killed
-  Cvar_Set( "sv_killserver", "1" );
-  SV_Frame(0);
+  CvarSet( "sv_killserver", "1" );
+  SVFrame(0);
 
   CL_Disconnect( qtrue );
   Con_Close();
@@ -1079,7 +1077,7 @@ void CL_Connect_f( void ) {
   clc.connectPacketCount = 0;
 
   // server connection string
-  Cvar_Set( "cl_currentServerAddress", server );
+  CvarSet( "cl_currentServerAddress", server );
 }
 
 
@@ -1200,7 +1198,7 @@ void CL_Vid_Restart_f( void ) {
   cls.soundRegistered = qfalse;
 
   // unpause so the cgame definately gets a snapshot and renders a frame
-  Cvar_Set( "cl_paused", "0" );
+  CvarSet( "cl_paused", "0" );
 
   // if not running a server clear the whole hunk
   if ( !com_sv_running->integer ) {
@@ -1338,7 +1336,7 @@ void CL_DownloadsComplete( void ) {
   }
 
   // starting to load a map so we get out of full screen ui mode
-  Cvar_Set("r_uiFullScreen", "0");
+  CvarSet("r_uiFullScreen", "0");
 
   // flush client memory and start loading stuff
   // this will also (re)load the UI
@@ -1377,9 +1375,9 @@ void CL_BeginDownload( const char *localName, const char *remoteName ) {
   Com_sprintf( clc.downloadTempName, sizeof(clc.downloadTempName), "%s.tmp", localName );
 
   // Set so UI gets access to it
-  Cvar_Set( "cl_downloadName", remoteName );
-  Cvar_Set( "cl_downloadSize", "0" );
-  Cvar_Set( "cl_downloadCount", "0" );
+  CvarSet( "cl_downloadName", remoteName );
+  CvarSet( "cl_downloadSize", "0" );
+  CvarSet( "cl_downloadCount", "0" );
   Cvar_SetValue( "cl_downloadTime", cls.realtime );
 
   clc.downloadBlock = 0; // Starting new file
@@ -1574,7 +1572,7 @@ void CL_DisconnectPacket( netadr_t from ) {
 
   // drop the connection
   Com_Printf( "Server disconnected for unknown reason\n" );
-  Cvar_Set("com_errorMessage", "Server disconnected for unknown reason\n" );
+  CvarSet("com_errorMessage", "Server disconnected for unknown reason\n" );
   CL_Disconnect( qtrue );
 }
 
@@ -1605,7 +1603,7 @@ void CL_MotdPacket( netadr_t from ) {
   challenge = Info_ValueForKey( info, "motd" );
 
   Q_strncpyz( cls.updateInfoString, info, sizeof( cls.updateInfoString ) );
-  Cvar_Set( "cl_motdString", challenge );
+  CvarSet( "cl_motdString", challenge );
 }
 
 /*
@@ -1925,7 +1923,7 @@ void CLPacketEvent(netadr_t from, msg_t *msg) {
   // after we have parsed the frame
   //
   if (clc.demorecording && !clc.demowaiting) {
-    CL_WriteDemoMessage(msg, headerBytes);
+    CLWriteDemoMessage(msg, headerBytes);
   }
 }
 
@@ -2198,7 +2196,7 @@ void CL_InitRef( void ) {
   ri.FS_FileIsInPAK = FS_FileIsInPAK;
   ri.FS_FileExists = FS_FileExists;
   ri.Cvar_Get = Cvar_Get;
-  ri.Cvar_Set = Cvar_Set;
+  ri.CvarSet = CvarSet;
 
   // cinematic stuff
 
@@ -2221,7 +2219,7 @@ void CL_InitRef( void ) {
   re = *ret;
 
   // unpause so the cgame definately gets a snapshot and renders a frame
-  Cvar_Set( "cl_paused", "0" );
+  CvarSet( "cl_paused", "0" );
 }
 
 
@@ -2234,8 +2232,8 @@ void CL_SetModel_f( void ) {
 
   arg = Cmd_Argv( 1 );
   if (arg[0]) {
-    Cvar_Set( "model", arg );
-    Cvar_Set( "headmodel", arg );
+    CvarSet( "model", arg );
+    CvarSet( "headmodel", arg );
   } else {
     Cvar_VariableStringBuffer( "model", name, sizeof(name) );
     Com_Printf("model is set to %s\n", name);
@@ -2376,9 +2374,9 @@ void CL_Init( void ) {
 
   SCR_Init ();
 
-  Cbuf_Execute ();
+  CBufExecute ();
 
-  Cvar_Set( "cl_running", "1" );
+  CvarSet( "cl_running", "1" );
 
   Com_Printf( "----- Client Initialization Complete -----\n" );
 }
@@ -2428,7 +2426,7 @@ void CL_Shutdown( void ) {
   Cmd_RemoveCommand ("showip");
   Cmd_RemoveCommand ("model");
 
-  Cvar_Set( "cl_running", "0" );
+  CvarSet( "cl_running", "0" );
 
   recursive = qfalse;
 

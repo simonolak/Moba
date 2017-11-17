@@ -1301,7 +1301,7 @@ static void GLW_StartOpenGL( void )
 			attempted3Dfx = qtrue;
 			if ( GLW_LoadOpenGL( _3DFX_DRIVER_NAME ) )
 			{
-				ri.Cvar_Set( "r_glDriver", _3DFX_DRIVER_NAME );
+				ri.CvarSet( "r_glDriver", _3DFX_DRIVER_NAME );
 				r_glDriver->modified = qfalse;
 			}
 			else
@@ -1312,7 +1312,7 @@ static void GLW_StartOpenGL( void )
 					{
 						ri.Error( ERR_FATAL, "GLW_StartOpenGL() - could not load OpenGL subsystem\n" );
 					}
-					ri.Cvar_Set( "r_glDriver", OPENGL_DRIVER_NAME );
+					ri.CvarSet( "r_glDriver", OPENGL_DRIVER_NAME );
 					r_glDriver->modified = qfalse;
 				}
 				else
@@ -1326,7 +1326,7 @@ static void GLW_StartOpenGL( void )
 			attemptedOpenGL32 = qtrue;
 			if ( GLW_LoadOpenGL( OPENGL_DRIVER_NAME ) )
 			{
-				ri.Cvar_Set( "r_glDriver", OPENGL_DRIVER_NAME );
+				ri.CvarSet( "r_glDriver", OPENGL_DRIVER_NAME );
 				r_glDriver->modified = qfalse;
 			}
 			else
@@ -1397,26 +1397,26 @@ void GLimp_Init( void )
 	{
 		glConfig.hardwareType = GLHW_GENERIC;
 
-		ri.Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
+		ri.CvarSet( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
 
 		// VOODOO GRAPHICS w/ 2MB
 		if ( strstr( buf, "voodoo graphics/1 tmu/2 mb" ) )
 		{
-			ri.Cvar_Set( "r_picmip", "2" );
+			ri.CvarSet( "r_picmip", "2" );
 			ri.Cvar_Get( "r_picmip", "1", CVAR_ARCHIVE | CVAR_LATCH );
 		}
 		else
 		{
-			ri.Cvar_Set( "r_picmip", "1" );
+			ri.CvarSet( "r_picmip", "1" );
 
 			if ( strstr( buf, "rage 128" ) || strstr( buf, "rage128" ) )
 			{
-				ri.Cvar_Set( "r_finish", "0" );
+				ri.CvarSet( "r_finish", "0" );
 			}
 			// Savage3D and Savage4 should always have trilinear enabled
 			else if ( strstr( buf, "savage3d" ) || strstr( buf, "s3 savage4" ) )
 			{
-				ri.Cvar_Set( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
+				ri.CvarSet( "r_texturemode", "GL_LINEAR_MIPMAP_LINEAR" );
 			}
 		}
 	}
@@ -1455,7 +1455,7 @@ void GLimp_Init( void )
 	{
 	}
 
-	ri.Cvar_Set( "r_lastValidRenderer", glConfig.renderer_string );
+	ri.CvarSet( "r_lastValidRenderer", glConfig.renderer_string );
 
 	GLW_InitExtensions();
 	WG_CheckHardwareGamma();

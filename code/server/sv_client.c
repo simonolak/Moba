@@ -857,7 +857,7 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 	rate = cl->rate;
 	if ( sv_maxRate->integer ) {
 		if ( sv_maxRate->integer < 1000 ) {
-			Cvar_Set( "sv_MaxRate", "1000" );
+			CvarSet( "sv_MaxRate", "1000" );
 		}
 		if ( sv_maxRate->integer < rate ) {
 			rate = sv_maxRate->integer;

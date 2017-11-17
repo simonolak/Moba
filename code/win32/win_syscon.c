@@ -96,14 +96,14 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			{
 				if ( HIWORD( wParam ) )		// minimized flag
 				{
-					Cvar_Set( "viewlog", "2" );
+					CvarSet( "viewlog", "2" );
 				}
 			}
 			else if ( com_viewlog->integer == 2 )
 			{
 				if ( !HIWORD( wParam ) )		// minimized flag
 				{
-					Cvar_Set( "viewlog", "1" );
+					CvarSet( "viewlog", "1" );
 				}
 			}
 		}
@@ -122,7 +122,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 		else
 		{
 			Sys_ShowConsole( 0, qfalse );
-			Cvar_Set( "viewlog", "0" );
+			CvarSet( "viewlog", "0" );
 		}
 		return 0;
 	case WM_CTLCOLORSTATIC:

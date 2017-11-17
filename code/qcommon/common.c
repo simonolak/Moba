@@ -272,7 +272,7 @@ void QDECL Com_Error(int code, const char *fmt, ...) {
   va_end(argptr);
 
   if (code != ERR_DISCONNECT && code != ERR_NEED_CD) {
-    Cvar_Set("com_errorMessage", com_errorMessage);
+    CvarSet("com_errorMessage", com_errorMessage);
   }
 
   if (code == ERR_SERVERDISCONNECT) {
@@ -282,13 +282,13 @@ void QDECL Com_Error(int code, const char *fmt, ...) {
     longjmp(abortframe, -1);
   } else if (code == ERR_DROP || code == ERR_DISCONNECT) {
     Com_Printf("********************\nERROR: %s\n********************\n", com_errorMessage);
-    SV_Shutdown(va("Server crashed: %s\n", com_errorMessage));
+    SVShutdown(va("Server crashed: %s\n", com_errorMessage));
     CL_Disconnect(qtrue);
     CL_FlushMemory();
     com_errorEntered = qfalse;
     longjmp(abortframe, -1);
   } else if (code == ERR_NEED_CD) {
-    SV_Shutdown("Server didn't have CD\n");
+    SVShutdown("Server didn't have CD\n");
     if (com_cl_running && com_cl_running->integer) {
       CL_Disconnect(qtrue);
       CL_FlushMemory();
@@ -300,7 +300,7 @@ void QDECL Com_Error(int code, const char *fmt, ...) {
     longjmp(abortframe, -1);
   } else {
     CL_Shutdown();
-    SV_Shutdown(va("Server fatal crashed: %s\n", com_errorMessage));
+    SVShutdown(va("Server fatal crashed: %s\n", com_errorMessage));
   }
 
   Com_Shutdown();
@@ -320,7 +320,7 @@ do the apropriate things.
 void ComQuitFunc(void) {
   // don't try to shutdown if we are in a recursive error
   if (!com_errorEntered) {
-    SV_Shutdown("Server quit\n");
+    SVShutdown("Server quit\n");
     CL_Shutdown();
     Com_Shutdown();
     FS_Shutdown(qtrue);
@@ -422,7 +422,7 @@ void Com_StartupVariable(const char *match) {
 
     s = Cmd_Argv(1);
     if (!match || !strcmp(s, match)) {
-      Cvar_Set(s, Cmd_Argv(2));
+      CvarSet(s, Cmd_Argv(2));
       cv = Cvar_Get(s, "", 0);
       cv->flags |= CVAR_USER_CREATED;
       //			com_consoleLines[i] = 0;
@@ -1770,7 +1770,7 @@ void Hunk_Trash(void) {
   return;
 #endif
 
-  Cvar_Set("com_jp", "1");
+  CvarSet("com_jp", "1");
   Hunk_SwapBanks();
 
   if (hunk_permanent == &hunk_low) {
@@ -1834,7 +1834,7 @@ void Com_InitJournaling(void) {
   }
 
   if (!com_journalFile || !com_journalDataFile) {
-    Cvar_Set("com_journal", "0");
+    CvarSet("com_journal", "0");
     com_journalFile = 0;
     com_journalDataFile = 0;
     Com_Printf("Couldn't open journal files\n");
@@ -2286,7 +2286,7 @@ void Com_Init(char *commandLine) {
 
   Cbuf_AddText("exec autoexec.cfg\n");
 
-  Cbuf_Execute();
+  CBufExecute();
 
   // override anything from the config files with command line args
   Com_StartupVariable(NULL);
@@ -2336,7 +2336,7 @@ void Com_Init(char *commandLine) {
 
   if (com_dedicated->integer) {
     if (!com_viewlog->integer) {
-      Cvar_Set("viewlog", "1");
+      CvarSet("viewlog", "1");
     }
   }
 
@@ -2374,19 +2374,19 @@ void Com_Init(char *commandLine) {
     if (!com_dedicated->integer) {
       Cbuf_AddText("cinematic idlogo.RoQ\n");
       if (!com_introPlayed->integer) {
-        Cvar_Set(com_introPlayed->name, "1");
-        Cvar_Set("nextmap", "cinematic intro.RoQ");
+        CvarSet(com_introPlayed->name, "1");
+        CvarSet("nextmap", "cinematic intro.RoQ");
       }
     }
   }
 
   // start in full screen ui mode
-  Cvar_Set("r_uiFullScreen", "1");
+  CvarSet("r_uiFullScreen", "1");
 
   CL_StartHunkUsers();
 
   // make sure single player is off by default
-  Cvar_Set("ui_singlePlayerActive", "0");
+  CvarSet("ui_singlePlayerActive", "0");
 
   com_fullyInitialized = qtrue;
   Com_Printf("--- Common Initialization Complete ---\n");
@@ -2519,15 +2519,15 @@ int Com_ModifyMsec(int msec) {
 }
 
 void ComFrame(void) {
-  int		msec, minMsec;
-  static int	lastTime;
+  int msec, minMsec;
+  static int lastTime;
   int key;
 
-  int		timeBeforeFirstEvents;
-  int           timeBeforeServer;
-  int           timeBeforeEvents;
-  int           timeBeforeClient;
-  int           timeAfter;
+  int timeBeforeFirstEvents;
+  int timeBeforeServer;
+  int timeBeforeEvents;
+  int timeBeforeClient;
+  int timeAfter;
 
   if (setjmp(abortframe)) {
     return;			// an ERR_DROP was thrown
@@ -2555,9 +2555,7 @@ void ComFrame(void) {
     com_viewlog->modified = qfalse;
   }
 
-  //
   // main event loop
-  //
   if (com_speeds->integer) {
     timeBeforeFirstEvents = SysMilliseconds();
   }
@@ -2575,7 +2573,7 @@ void ComFrame(void) {
     }
     msec = com_frameTime - lastTime;
   } while (msec < minMsec);
-  Cbuf_Execute();
+  CBufExecute();
 
   lastTime = com_frameTime;
 
@@ -2583,14 +2581,12 @@ void ComFrame(void) {
   com_frameMsec = msec;
   msec = Com_ModifyMsec(msec);
 
-  //
   // server side
-  //
   if (com_speeds->integer) {
     timeBeforeServer = SysMilliseconds();
   }
 
-  SV_Frame(msec);
+  SVFrame(msec);
 
   // if "dedicated" has been modified, start up
   // or shut down the client system.
@@ -2609,9 +2605,7 @@ void ComFrame(void) {
     }
   }
 
-  //
   // client system
-  //
   if (!com_dedicated->integer) {
     //
     // run event loop a second time to get server to client packets
@@ -2620,12 +2614,11 @@ void ComFrame(void) {
     if (com_speeds->integer) {
       timeBeforeEvents = SysMilliseconds();
     }
-    ComEventLoop();
-    Cbuf_Execute();
 
-    //
+    ComEventLoop();
+    CBufExecute();
+
     // client side
-    //
     if (com_speeds->integer) {
       timeBeforeClient = SysMilliseconds();
     }

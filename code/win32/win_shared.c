@@ -35,16 +35,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 int sys_timeBase;
 int SysMilliseconds(void) {
-	int sys_curtime;
-	static qboolean	initialized = qfalse;
+  int sys_curtime;
+  static qboolean	initialized = qfalse;
 
-	if (!initialized) {
-		sys_timeBase = timeGetTime();
-		initialized = qtrue;
-	}
-	sys_curtime = timeGetTime() - sys_timeBase;
+  if (!initialized) {
+    sys_timeBase = timeGetTime();
+    initialized = qtrue;
+  }
+  sys_curtime = timeGetTime() - sys_timeBase;
 
-	return sys_curtime;
+  return sys_curtime;
 }
 
 /*

@@ -193,9 +193,9 @@ static void SV_Map_f( void ) {
 	// cheats will not be allowed.  If started with "devmap <levelname>"
 	// then cheats will be allowed
 	if ( cheat ) {
-		Cvar_Set( "sv_cheats", "1" );
+		CvarSet( "sv_cheats", "1" );
 	} else {
-		Cvar_Set( "sv_cheats", "0" );
+		CvarSet( "sv_cheats", "0" );
 	}
 }
 
@@ -261,7 +261,7 @@ static void SV_MapRestart_f( void ) {
 	// generate a new serverid	
 	// TTimo - don't update restartedserverId there, otherwise we won't deal correctly with multiple map_restart
 	sv.serverId = com_frameTime;
-	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
+	CvarSet( "sv_serverid", va("%i", sv.serverId ) );
 
 	// reset all the vm data in place without changing memory allocation
 	// note that we do NOT set sv.state = SS_LOADING, so configstrings that
@@ -697,7 +697,7 @@ SV_KillServer
 =================
 */
 static void SV_KillServer_f( void ) {
-	SV_Shutdown( "killserver" );
+	SVShutdown( "killserver" );
 }
 
 //===========================================================

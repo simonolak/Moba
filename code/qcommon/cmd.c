@@ -136,9 +136,9 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	{
 	case EXEC_NOW:
 		if (text && strlen(text) > 0) {
-			Cmd_ExecuteString (text);
+			CmdExecuteString (text);
 		} else {
-			Cbuf_Execute();
+			CBufExecute();
 		}
 		break;
 	case EXEC_INSERT:
@@ -152,14 +152,14 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	}
 }
 
-void Cbuf_Execute(void) {
+void CBufExecute(void) {
   int		i;
   char	*text;
   char	line[MAX_CMD_LINE];
   int		quotes;
 
   while (cmd_text.cursize) {
-    if (cmd_wait)	{
+    if (cmd_wait) {
       // skip out while text still remains in buffer, leaving it
       // for next frame
       cmd_wait--;
@@ -170,16 +170,16 @@ void Cbuf_Execute(void) {
     text = (char *)cmd_text.data;
 
     quotes = 0;
-    for (i=0 ; i< cmd_text.cursize ; i++) {
+    for (i = 0; i < cmd_text.cursize; i++) {
       if (text[i] == '"')
         quotes++;
-      if ( !(quotes&1) &&  text[i] == ';')
+      if (!(quotes & 1) && text[i] == ';')
         break;	// don't break if inside a quoted string
-      if (text[i] == '\n' || text[i] == '\r' )
+      if (text[i] == '\n' || text[i] == '\r')
         break;
     }
 
-    if( i >= (MAX_CMD_LINE - 1)) {
+    if (i >= (MAX_CMD_LINE - 1)) {
       i = MAX_CMD_LINE - 1;
     }
 
@@ -192,16 +192,15 @@ void Cbuf_Execute(void) {
 
     if (i == cmd_text.cursize)
       cmd_text.cursize = 0;
-    else
-    {
+    else {
       i++;
       cmd_text.cursize -= i;
-      memmove (text, text+i, cmd_text.cursize);
+      memmove(text, text + i, cmd_text.cursize);
     }
 
     // execute the command line
 
-    Cmd_ExecuteString (line);		
+    CmdExecuteString(line);
   }
 }
 
@@ -563,65 +562,64 @@ void	Cmd_CommandCompletion( void(*callback)(const char *s) ) {
 	}
 }
 
-
 /*
 ============
 A complete command line has been parsed, so try to execute it
 ============
 */
-void Cmd_ExecuteString(const char *text) {	
-	cmd_function_t	*cmd, **prev;
+void CmdExecuteString(const char *text) {
+  cmd_function_t	*cmd, **prev;
 
-	// execute the command line
-	CmdTokenizeString( text );		
-	if ( !Cmd_Argc() ) {
-		return;		// no tokens
-	}
+  // execute the command line
+  CmdTokenizeString(text);
+  if (!Cmd_Argc()) {
+    return;		// no tokens
+  }
 
-	// check registered command functions	
-	for ( prev = &cmd_functions ; *prev ; prev = &cmd->next ) {
-		cmd = *prev;
-		if ( !Q_stricmp( cmd_argv[0],cmd->name ) ) {
-			// rearrange the links so that the command will be
-			// near the head of the list next time it is used
-			*prev = cmd->next;
-			cmd->next = cmd_functions;
-			cmd_functions = cmd;
+  // check registered command functions
+  for (prev = &cmd_functions; *prev; prev = &cmd->next) {
+    cmd = *prev;
+    if (!Q_stricmp(cmd_argv[0], cmd->name)) {
+      // rearrange the links so that the command will be
+      // near the head of the list next time it is used
+      *prev = cmd->next;
+      cmd->next = cmd_functions;
+      cmd_functions = cmd;
 
-			// perform the action
-			if ( !cmd->function ) {
-				// let the cgame or game handle it
-				break;
-			} else {
-				cmd->function ();
-			}
-			return;
-		}
-	}
-	
-	// check cvars
-	if ( Cvar_Command() ) {
-		return;
-	}
+      // perform the action
+      if (!cmd->function) {
+        // let the cgame or game handle it
+        break;
+      } else {
+        cmd->function();
+      }
+      return;
+    }
+  }
 
-	// check client game commands
-	if ( com_cl_running && com_cl_running->integer && CL_GameCommand() ) {
-		return;
-	}
+  // check cvars
+  if (CvarCommand()) {
+    return;
+  }
 
-	// check server game commands
-	if ( com_sv_running && com_sv_running->integer && SV_GameCommand() ) {
-		return;
-	}
+  // check client game commands
+  if (com_cl_running && com_cl_running->integer && CL_GameCommand()) {
+    return;
+  }
 
-	// check ui commands
-	if ( com_cl_running && com_cl_running->integer && UI_GameCommand() ) {
-		return;
-	}
+  // check server game commands
+  if (com_sv_running && com_sv_running->integer && SV_GameCommand()) {
+    return;
+  }
 
-	// send it as a server command if we are connected
-	// this will usually result in a chat message
-	CL_ForwardCommandToServer(text);
+  // check ui commands
+  if (com_cl_running && com_cl_running->integer && UI_GameCommand()) {
+    return;
+  }
+
+  // send it as a server command if we are connected
+  // this will usually result in a chat message
+  CL_ForwardCommandToServer(text);
 }
 
 /*

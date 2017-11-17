@@ -1043,12 +1043,12 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
         if (Cvar_VariableValue("r_fullscreen") == 0)
         {
           Com_Printf("Switching to fullscreen rendering\n");
-          Cvar_Set("r_fullscreen", "1");
+          CvarSet("r_fullscreen", "1");
         }
         else
         {
           Com_Printf("Switching to windowed rendering\n");
-          Cvar_Set("r_fullscreen", "0");
+          CvarSet("r_fullscreen", "0");
         }
         Cbuf_ExecuteText( EXEC_APPEND, "vid_restart\n");
         return;
@@ -1071,7 +1071,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 	if ( down && ( key < 128 || key == K_MOUSE1 ) && ( clc.demoplaying || cls.state == CA_CINEMATIC ) && !cls.keyCatchers) {
 
 		if (Cvar_VariableValue ("com_cameraMode") == 0) {
-			Cvar_Set ("nextdemo","");
+			CvarSet ("nextdemo","");
 			key = K_ESCAPE;
 		}
 	}

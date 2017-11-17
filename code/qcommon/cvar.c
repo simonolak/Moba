@@ -367,7 +367,7 @@ cvar_t *Cvar_Set2(const char *var_name, const char *value, qboolean force) {
   return var;
 }
 
-void Cvar_Set( const char *var_name, const char *value) {
+void CvarSet( const char *var_name, const char *value) {
 	Cvar_Set2(var_name, value, qtrue);
 }
 
@@ -393,7 +393,7 @@ void Cvar_SetValue( const char *var_name, float value) {
 	} else {
 		Com_sprintf (val, sizeof(val), "%f",value);
 	}
-	Cvar_Set (var_name, val);
+	CvarSet (var_name, val);
 }
 
 
@@ -428,7 +428,7 @@ void Cvar_SetCheatState( void ) {
         var->latchedString = NULL;
       }
 			if (strcmp(var->resetString,var->string)) {
-        Cvar_Set( var->name, var->resetString );
+        CvarSet( var->name, var->resetString );
 			}
 		}
 	}
@@ -436,34 +436,32 @@ void Cvar_SetCheatState( void ) {
 
 /*
 ============
-Cvar_Command
-
+CvarCommand
 Handles variable inspection and changing from the console
 ============
 */
-qboolean Cvar_Command( void ) {
-	cvar_t			*v;
+qboolean CvarCommand(void) {
+  cvar_t *v;
 
-	// check variables
-	v = Cvar_FindVar (Cmd_Argv(0));
-	if (!v) {
-		return qfalse;
-	}
+  // check variables
+  v = Cvar_FindVar(Cmd_Argv(0));
+  if (!v) {
+    return qfalse;
+  }
 
-	// perform a variable print or set
-	if ( Cmd_Argc() == 1 ) {
-		Com_Printf ("\"%s\" is:\"%s" S_COLOR_WHITE "\" default:\"%s" S_COLOR_WHITE "\"\n", v->name, v->string, v->resetString );
-		if ( v->latchedString ) {
-			Com_Printf( "latched: \"%s\"\n", v->latchedString );
-		}
-		return qtrue;
-	}
+  // perform a variable print or set
+  if (Cmd_Argc() == 1) {
+    Com_Printf("\"%s\" is:\"%s" S_COLOR_WHITE "\" default:\"%s" S_COLOR_WHITE "\"\n", v->name, v->string, v->resetString);
+    if (v->latchedString) {
+      Com_Printf("latched: \"%s\"\n", v->latchedString);
+    }
+    return qtrue;
+  }
 
-	// set the value if forcing isn't required
-	Cvar_Set2 (v->name, Cmd_Argv(1), qfalse);
-	return qtrue;
+  // set the value if forcing isn't required
+  Cvar_Set2(v->name, Cmd_Argv(1), qfalse);
+  return qtrue;
 }
-
 
 /*
 ============
@@ -522,7 +520,7 @@ void Cvar_Set_f( void ) {
 ============
 Cvar_SetU_f
 
-As Cvar_Set, but also flags it as userinfo
+As CvarSet, but also flags it as userinfo
 ============
 */
 void Cvar_SetU_f( void ) {
@@ -542,7 +540,7 @@ void Cvar_SetU_f( void ) {
 
 /*
 ============
-As Cvar_Set, but also flags it as userinfo
+As CvarSet, but also flags it as userinfo
 ============
 */
 void Cvar_SetS_f( void ) {
@@ -564,7 +562,7 @@ void Cvar_SetS_f( void ) {
 ============
 Cvar_SetA_f
 
-As Cvar_Set, but also flags it as archived
+As CvarSet, but also flags it as archived
 ============
 */
 void Cvar_SetA_f( void ) {
@@ -733,7 +731,7 @@ void Cvar_Restart_f( void ) {
 			continue;
 		}
 
-		Cvar_Set( var->name, var->resetString );
+		CvarSet( var->name, var->resetString );
 
 		prev = &var->next;
 	}

@@ -372,7 +372,7 @@ void IN_ActivateDIMouse(void) {
   if (FAILED(hr)) {
     if (!IN_InitDIMouse()) {
       Com_Printf("Falling back to Win32 mouse support...\n");
-      Cvar_Set("in_mouse", "-1");
+      CvarSet("in_mouse", "-1");
     }
   }
 }
@@ -559,7 +559,7 @@ void IN_StartupMouse(void) {
   if ((g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT) &&
     (g_wv.osversion.dwMajorVersion == 4)) {
     Com_Printf("Disallowing DirectInput on NT 4.0\n");
-    Cvar_Set("in_mouse", "-1");
+    CvarSet("in_mouse", "-1");
   }
 
   if (in_mouse->integer == -1) {
@@ -716,14 +716,14 @@ void IN_Frame(void) {
   IN_JoyMove();
 
   //MARK: OlaK {{
-  if (!s_wmv.mouseInitialized) {
-    if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
-      Com_Printf("Proceeding with delayed mouse init\n");
-      IN_StartupMouse();
-      s_wmv.mouseStartupDelayed = qfalse;
-    }
-    return;
-  }
+  //if (!s_wmv.mouseInitialized) {
+  //  if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
+  //    Com_Printf("Proceeding with delayed mouse init\n");
+  //    IN_StartupMouse();
+  //    s_wmv.mouseStartupDelayed = qfalse;
+  //  }
+  //  return;
+  //}
   //}}
 
   if (cls.keyCatchers & KEYCATCH_CONSOLE) {

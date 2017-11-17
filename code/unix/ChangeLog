@@ -124,7 +124,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 
 2002-9-24 Timothee Besset <ttimo@idsoftware.com>
 	+ ATVI Quake 3 1.32 Patch #33
-		PB reporting sv_paused cvar hacked, fixed SV_CheckPaused to use a Cvar_Set
+		PB reporting sv_paused cvar hacked, fixed SVCheckPaused to use a CvarSet
 	+ ATVI Quake 3 1.32 Patch #24
 		added [skipnotify] from RTCW, use to display in the console only, but not on client screen
 		(also fixes pb_msgprefix and pb_sv_msgprefix)
@@ -2585,8 +2585,8 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
         "q3dm2", killBots==qtrue
 	#0  CM_ClearMap () at ..//qcommon/cm_load.c:644
         #1  0x80884a7 in SV_Map_f () at ..//server/sv_ccmds.c:159
-        #2  0x8072579 in Cmd_ExecuteString (text=0xbffff4b0 "spmap q3dm2") at ..//qcommon/cmd.c:591
-        #3  0x8071dfe in Cbuf_Execute () at ..//qcommon/cmd.c:190
+        #2  0x8072579 in CmdExecuteString (text=0xbffff4b0 "spmap q3dm2") at ..//qcommon/cmd.c:591
+        #3  0x8071dfe in CBufExecute () at ..//qcommon/cmd.c:190
         #4  0x80763f7 in ComFrame () at ..//qcommon/common.c:2547
         #5  0x8130d6b in main (argc=13, argv=0xbffff984) at ..//unix/unix_main.c:953
         #6  0x40100cb3 in __libc_start_main (main=0x8130bc4 <main>
