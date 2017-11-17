@@ -747,6 +747,7 @@ happen before SVFrame is called
 ==================
 */
 void SVFrame(int msec) {
+  //Ã¿Ö¡ºÁÃëÊý
   int frameMsec;
   int startTime;
 
@@ -774,13 +775,14 @@ void SVFrame(int msec) {
 
   sv.timeResidual += msec;
 
-  if (!com_dedicated->integer)
+  if (!com_dedicated->integer) {
     SVBotFrame(svs.time + sv.timeResidual);
+  }
 
   if (com_dedicated->integer && sv.timeResidual < frameMsec) {
-    // NET_Sleep will give the OS time slices until either get a packet
+    // NETSleep will give the OS time slices until either get a packet
     // or time enough for a server frame has gone by
-    NET_Sleep(frameMsec - sv.timeResidual);
+    NETSleep(frameMsec - sv.timeResidual);
     return;
   }
 
@@ -825,7 +827,9 @@ void SVFrame(int msec) {
   // update ping based on the all received frames
   SV_CalcPings();
 
-  if (com_dedicated->integer) SVBotFrame(svs.time);
+  if (com_dedicated->integer) {
+    SVBotFrame(svs.time);
+  }
 
   // run the game simulation in chunks
   while (sv.timeResidual >= frameMsec) {

@@ -80,10 +80,6 @@ typedef struct {
 	int				restartTime;
 } server_t;
 
-
-
-
-
 typedef struct {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
@@ -194,7 +190,7 @@ typedef struct {
 typedef struct {
 	qboolean	initialized;				// sv_init has completed
 
-	int			time;						// will be strictly increasing across level changes
+	int time; // will be strictly increasing across level changes
 
 	int			snapFlagServerBit;			// ^= SNAPFLAG_SERVERCOUNT every SV_SpawnServer()
 
