@@ -356,7 +356,7 @@ rescan:
 		// close the console
 		Con_Close();
 		// take a special screenshot next frame
-		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
+		CbufAddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
 		return qtrue;
 	}
 
@@ -458,7 +458,7 @@ int CL_CgameSystemCalls( int *args ) {
 	case CG_FS_SEEK:
 		return FS_Seek( args[1], args[2], args[3] );
 	case CG_SENDCONSOLECOMMAND:
-		Cbuf_AddText( VMA(1) );
+		CbufAddText( VMA(1) );
 		return 0;
 	case CG_ADDCOMMAND:
 		CL_AddCgameCommand( VMA(1) );
@@ -900,7 +900,7 @@ void CL_FirstSnapshot( void ) {
 	// this is to allow scripting a timedemo to start right
 	// after loading
 	if ( cl_activeAction->string[0] ) {
-		Cbuf_AddText( cl_activeAction->string );
+		CbufAddText( cl_activeAction->string );
 		CvarSet( "activeAction", "" );
 	}
 	

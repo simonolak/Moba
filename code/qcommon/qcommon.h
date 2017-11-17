@@ -346,11 +346,11 @@ files can be execed.
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
 
-void Cbuf_AddText( const char *text );
+void CbufAddText( const char *text );
 // Adds command text at the end of the buffer, does NOT add a final \n
 
 void Cbuf_ExecuteText( int exec_when, const char *text );
-// this can be used in place of either Cbuf_AddText or Cbuf_InsertText
+// this can be used in place of either CbufAddText or Cbuf_InsertText
 
 void CBufExecute (void);
 // Pulls off \n terminated lines of text from the command buffer and sends

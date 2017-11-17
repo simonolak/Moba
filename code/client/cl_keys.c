@@ -477,7 +477,7 @@ Handles history and console scrollback
 void Console_Key (int key) {
 	// ctrl-L clears screen
 	if ( key == 'l' && keys[K_CTRL].down ) {
-		Cbuf_AddText ("clear\n");
+		CbufAddText ("clear\n");
 		return;
 	}
 
@@ -497,16 +497,16 @@ void Console_Key (int key) {
 
 		// leading slash is an explicit command
 		if ( g_consoleField.buffer[0] == '\\' || g_consoleField.buffer[0] == '/' ) {
-			Cbuf_AddText( g_consoleField.buffer+1 );	// valid command
-			Cbuf_AddText ("\n");
+			CbufAddText( g_consoleField.buffer+1 );	// valid command
+			CbufAddText ("\n");
 		} else {
 			// other text will be chat messages
 			if ( !g_consoleField.buffer[0] ) {
 				return;	// empty lines just scroll the console without adding to history
 			} else {
-				Cbuf_AddText ("cmd say ");
-				Cbuf_AddText( g_consoleField.buffer );
-				Cbuf_AddText ("\n");
+				CbufAddText ("cmd say ");
+				CbufAddText( g_consoleField.buffer );
+				CbufAddText ("\n");
 			}
 		}
 
@@ -984,13 +984,13 @@ void CL_AddKeyUpCommands( int key, char *kb ) {
 				// button commands add keynum and time as parms so that multiple
 				// sources can be discriminated and subframe corrected
 				Com_sprintf (cmd, sizeof(cmd), "-%s %i %i\n", button+1, key, time);
-				Cbuf_AddText (cmd);
+				CbufAddText (cmd);
 				keyevent = qtrue;
 			} else {
 				if (keyevent) {
 					// down-only command
-					Cbuf_AddText (button);
-					Cbuf_AddText ("\n");
+					CbufAddText (button);
+					CbufAddText ("\n");
 				}
 			}
 			buttonPtr = button;
@@ -1163,11 +1163,11 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 						// button commands add keynum and time as parms so that multiple
 						// sources can be discriminated and subframe corrected
 						Com_sprintf (cmd, sizeof(cmd), "%s %i %i\n", button, key, time);
-						Cbuf_AddText (cmd);
+						CbufAddText (cmd);
 					} else {
 						// down-only command
-						Cbuf_AddText (button);
-						Cbuf_AddText ("\n");
+						CbufAddText (button);
+						CbufAddText ("\n");
 					}
 					buttonPtr = button;
 					while ( (kb[i] <= ' ' || kb[i] == ';') && kb[i] != 0 ) {
@@ -1181,8 +1181,8 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 			}
 		} else {
 			// down-only command
-			Cbuf_AddText (kb);
-			Cbuf_AddText ("\n");
+			CbufAddText (kb);
+			CbufAddText ("\n");
 		}
 	}
 }

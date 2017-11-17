@@ -790,19 +790,19 @@ void SVFrame(int msec) {
   // 2giga-milliseconds = 23 days, so it won't be too often
   if (svs.time > 0x70000000) {
     SVShutdown("Restarting server due to time wrapping");
-    Cbuf_AddText("vstr nextmap\n");
+    CbufAddText("vstr nextmap\n");
     return;
   }
   // this can happen considerably earlier when lots of clients play and the map doesn't change
   if (svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities) {
     SVShutdown("Restarting server due to numSnapshotEntities wrapping");
-    Cbuf_AddText("vstr nextmap\n");
+    CbufAddText("vstr nextmap\n");
     return;
   }
 
   if (sv.restartTime && svs.time >= sv.restartTime) {
     sv.restartTime = 0;
-    Cbuf_AddText("map_restart 0\n");
+    CbufAddText("map_restart 0\n");
     return;
   }
 

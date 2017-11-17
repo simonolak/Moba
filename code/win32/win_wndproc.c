@@ -335,7 +335,7 @@ LONG WINAPI MainWndProc (
 			break;		// we did this on purpose
 		}
 		// something else forced a mode change, so restart all our gl stuff
-		Cbuf_AddText( "vid_restart\n" );
+		CbufAddText( "vid_restart\n" );
 		break;
 #endif
 	case WM_DESTROY:
@@ -432,7 +432,7 @@ LONG WINAPI MainWndProc (
 			if ( r_fullscreen )
 			{
 				Cvar_SetValue( "r_fullscreen", !r_fullscreen->integer );
-				Cbuf_AddText( "vid_restart\n" );
+				CbufAddText( "vid_restart\n" );
 			}
 			return 0;
 		}

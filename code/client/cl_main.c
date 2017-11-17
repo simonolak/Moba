@@ -565,7 +565,7 @@ Closing the main menu will restart the demo loop
 */
 void CL_StartDemoLoop( void ) {
   // start the demo loop again
-  Cbuf_AddText ("d1\n");
+  CbufAddText ("d1\n");
   cls.keyCatchers = 0;
 }
 
@@ -588,8 +588,8 @@ void CL_NextDemo( void ) {
   }
 
   CvarSet ("nextdemo","");
-  Cbuf_AddText (v);
-  Cbuf_AddText ("\n");
+  CbufAddText (v);
+  CbufAddText ("\n");
   CBufExecute();
 }
 
@@ -1006,7 +1006,7 @@ void CL_Reconnect_f( void ) {
     return;
   }
   CvarSet("ui_singlePlayerActive", "0");
-  Cbuf_AddText( va("connect %s\n", cls.servername ) );
+  CbufAddText( va("connect %s\n", cls.servername ) );
 }
 
 /*

@@ -456,8 +456,8 @@ qboolean Com_AddStartupCommands(void) {
     if (Q_stricmpn(com_consoleLines[i], "set", 3)) {
       added = qtrue;
     }
-    Cbuf_AddText(com_consoleLines[i]);
-    Cbuf_AddText("\n");
+    CbufAddText(com_consoleLines[i]);
+    CbufAddText("\n");
   }
 
   return added;
@@ -2010,8 +2010,8 @@ int ComEventLoop(void) {
       CL_JoystickEvent(ev.evValue, ev.evValue2, ev.evTime);
       break;
     case SE_CONSOLE:
-      Cbuf_AddText((char *)ev.evPtr);
-      Cbuf_AddText("\n");
+      CbufAddText((char *)ev.evPtr);
+      CbufAddText("\n");
       break;
     case SE_PACKET:
       // this cvar allows simulation of connections that
@@ -2277,14 +2277,14 @@ void Com_Init(char *commandLine) {
 
   Com_InitJournaling();
 
-  Cbuf_AddText("exec default.cfg\n");
+  CbufAddText("exec default.cfg\n");
 
   // skip the q3config.cfg if "safe" is on the command line
   if (!Com_SafeMode()) {
-    Cbuf_AddText("exec q3config.cfg\n");
+    CbufAddText("exec q3config.cfg\n");
   }
 
-  Cbuf_AddText("exec autoexec.cfg\n");
+  CbufAddText("exec autoexec.cfg\n");
 
   CBufExecute();
 
@@ -2372,7 +2372,7 @@ void Com_Init(char *commandLine) {
   if (!Com_AddStartupCommands()) {
     // if the user didn't give any commands, run default action
     if (!com_dedicated->integer) {
-      Cbuf_AddText("cinematic idlogo.RoQ\n");
+      CbufAddText("cinematic idlogo.RoQ\n");
       if (!com_introPlayed->integer) {
         CvarSet(com_introPlayed->name, "1");
         CvarSet("nextmap", "cinematic intro.RoQ");

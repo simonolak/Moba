@@ -1745,7 +1745,7 @@ void MSG_NUinitHuffman() {
 	}
 	Com_Printf("};\n");
 	FS_FreeFile( data );
-	Cbuf_AddText( "condump dump.txt\n" );
+	CbufAddText( "condump dump.txt\n" );
 }
 */
 
