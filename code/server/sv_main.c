@@ -119,77 +119,74 @@ int SV_ReplacePendingServerCommands( client_t *client, const char *cmd ) {
 
 /*
 ======================
-SV_AddServerCommand
-
+SVAddServerCommand
 The given command will be transmitted to the client, and is guaranteed to
 not have future snapshot_t executed before it is executed
 ======================
 */
-void SV_AddServerCommand( client_t *client, const char *cmd ) {
-	int		index, i;
+void SVAddServerCommand(client_t *client, const char *cmd) {
+  int		index, i;
 
-	// this is very ugly but it's also a waste to for instance send multiple config string updates
-	// for the same config string index in one snapshot
-//	if ( SV_ReplacePendingServerCommands( client, cmd ) ) {
-//		return;
-//	}
+  // this is very ugly but it's also a waste to for instance send multiple config string updates
+  // for the same config string index in one snapshot
+  //	if ( SV_ReplacePendingServerCommands( client, cmd ) ) {
+  //		return;
+  //	}
 
-	client->reliableSequence++;
-	// if we would be losing an old command that hasn't been acknowledged,
-	// we must drop the connection
-	// we check == instead of >= so a broadcast print added by SV_DropClient()
-	// doesn't cause a recursive drop client
-	if ( client->reliableSequence - client->reliableAcknowledge == MAX_RELIABLE_COMMANDS + 1 ) {
-		Com_Printf( "===== pending server commands =====\n" );
-		for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-			Com_Printf( "cmd %5d: %s\n", i, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
-		}
-		Com_Printf( "cmd %5d: %s\n", i, cmd );
-		SV_DropClient( client, "Server command overflow" );
-		return;
-	}
-	index = client->reliableSequence & ( MAX_RELIABLE_COMMANDS - 1 );
-	Q_strncpyz( client->reliableCommands[ index ], cmd, sizeof( client->reliableCommands[ index ] ) );
+  client->reliableSequence++;
+  // if we would be losing an old command that hasn't been acknowledged,
+  // we must drop the connection
+  // we check == instead of >= so a broadcast print added by SVDropClient()
+  // doesn't cause a recursive drop client
+  if (client->reliableSequence - client->reliableAcknowledge == MAX_RELIABLE_COMMANDS + 1) {
+    Com_Printf("===== pending server commands =====\n");
+    for (i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
+      Com_Printf("cmd %5d: %s\n", i, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
+    }
+    Com_Printf("cmd %5d: %s\n", i, cmd);
+    SVDropClient(client, "Server command overflow");
+    return;
+  }
+  index = client->reliableSequence & (MAX_RELIABLE_COMMANDS - 1);
+  Q_strncpyz(client->reliableCommands[index], cmd, sizeof(client->reliableCommands[index]));
 }
-
 
 /*
 =================
 SVSendServerCommand
-Sends a reliable command string to be interpreted by 
+Sends a reliable command string to be interpreted by
 the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
 */
 void QDECL SVSendServerCommand(client_t *cl, const char *fmt, ...) {
-	va_list		argptr;
-	byte		message[MAX_MSGLEN];
-	client_t	*client;
-	int			j;
-	
-	va_start (argptr,fmt);
-	Q_vsnprintf ((char *)message, sizeof(message), fmt,argptr);
-	va_end (argptr);
+  va_list		argptr;
+  byte		message[MAX_MSGLEN];
+  client_t	*client;
+  int			j;
 
-	if ( cl != NULL ) {
-		SV_AddServerCommand( cl, (char *)message );
-		return;
-	}
+  va_start(argptr, fmt);
+  Q_vsnprintf((char *)message, sizeof(message), fmt, argptr);
+  va_end(argptr);
 
-	// hack to echo broadcast prints to console
-	if ( com_dedicated->integer && !strncmp( (char *)message, "print", 5) ) {
-		Com_Printf ("broadcast: %s\n", SV_ExpandNewlines((char *)message) );
-	}
+  if (cl != NULL) {
+    SVAddServerCommand(cl, (char *)message);
+    return;
+  }
 
-	// send the data to all relevent clients
-	for (j = 0, client = svs.clients; j < sv_maxclients->integer ; j++, client++) {
-		if ( client->state < CS_PRIMED ) {
-			continue;
-		}
-		SV_AddServerCommand( client, (char *)message );
-	}
+  // hack to echo broadcast prints to console
+  if (com_dedicated->integer && !strncmp((char *)message, "print", 5)) {
+    Com_Printf("broadcast: %s\n", SV_ExpandNewlines((char *)message));
+  }
+
+  // send the data to all relevent clients
+  for (j = 0, client = svs.clients; j < sv_maxclients->integer; j++, client++) {
+    if (client->state < CS_PRIMED) {
+      continue;
+    }
+    SVAddServerCommand(client, (char *)message);
+  }
 }
-
 
 /*
 ==============================================================================
@@ -694,7 +691,7 @@ void SVCheckTimeouts( void ) {
 			// wait several frames so a debugger session doesn't
 			// cause a timeout
 			if ( ++cl->timeoutCount > 5 ) {
-				SV_DropClient (cl, "timed out"); 
+				SVDropClient (cl, "timed out"); 
 				cl->state = CS_FREE;	// don't bother with zombie state
 			}
 		} else {

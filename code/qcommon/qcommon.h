@@ -157,7 +157,7 @@ void		NETSendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
 void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...);
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b);
+qboolean	NETCompareAdr (netadr_t a, netadr_t b);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
@@ -546,7 +546,7 @@ void	FS_SV_Rename( const char *from, const char *to );
 int		FS_FOpenFileRead( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
 // if uniqueFILE is true, then a new FILE will be fopened even if the file
 // is found in an already open pak file.  If uniqueFILE is false, you must call
-// FS_FCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
+// FSCloseFile instead of fclose, otherwise the pak FILE would be improperly closed
 // It is generally safe to always set uniqueFILE to true, because the majority of
 // file IO goes through FS_ReadFile, which Does The Right Thing already.
 
@@ -559,7 +559,7 @@ int		FS_Read2( void *buffer, int len, fileHandle_t f );
 int		FS_Read( void *buffer, int len, fileHandle_t f );
 // properly handles partial reads and reads from other dlls
 
-void	FS_FCloseFile( fileHandle_t f );
+void	FSCloseFile( fileHandle_t f );
 // note: you can't just fclose from another DLL, due to MS libc issues
 
 int		FS_ReadFile( const char *qpath, void **buffer );
@@ -785,14 +785,14 @@ void *Z_TagMalloc( int size, int tag );	// NOT 0 filled memory
 void *Z_Malloc( int size );			// returns 0 filled memory
 void *S_Malloc( int size );			// NOT 0 filled memory only for small allocations
 #endif
-void Z_Free( void *ptr );
+void ZFree( void *ptr );
 void Z_FreeTags( int tag );
 int Z_AvailableMemory( void );
 void Z_LogHeap( void );
 
 void Hunk_Clear( void );
 void Hunk_ClearToMark( void );
-void Hunk_SetMark( void );
+void HunkSetMark( void );
 qboolean Hunk_CheckMark( void );
 void Hunk_ClearTempMemory( void );
 void *Hunk_AllocateTempMemory( int size );

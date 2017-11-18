@@ -304,7 +304,7 @@ char *AAS_LoadAASLump(fileHandle_t fp, int offset, int length, int *lastoffset, 
 		{
 			AAS_Error("can't seek to aas lump\n");
 			AAS_DumpAASData();
-			botimport.FS_FCloseFile(fp);
+			botimport.FSCloseFile(fp);
 			return 0;
 		} //end if
 	} //end if
@@ -364,7 +364,7 @@ int AAS_LoadAASFile(char *filename)
 	if (header.ident != AASID)
 	{
 		AAS_Error("%s is not an AAS file\n", filename);
-		botimport.FS_FCloseFile(fp);
+		botimport.FSCloseFile(fp);
 		return BLERR_WRONGAASFILEID;
 	} //end if
 	//check the version
@@ -373,7 +373,7 @@ int AAS_LoadAASFile(char *filename)
 	if (header.version != AASVERSION_OLD && header.version != AASVERSION)
 	{
 		AAS_Error("aas file %s is version %i, not %i\n", filename, header.version, AASVERSION);
-		botimport.FS_FCloseFile(fp);
+		botimport.FSCloseFile(fp);
 		return BLERR_WRONGAASFILEVERSION;
 	} //end if
 	//
@@ -386,7 +386,7 @@ int AAS_LoadAASFile(char *filename)
 	if (LittleLong(header.bspchecksum) != aasworld.bspchecksum)
 	{
 		AAS_Error("aas file %s is out of date\n", filename);
-		botimport.FS_FCloseFile(fp);
+		botimport.FSCloseFile(fp);
 		return BLERR_WRONGAASFILEVERSION;
 	} //end if
 	//load the lumps:
@@ -479,7 +479,7 @@ int AAS_LoadAASFile(char *filename)
 	//aas file is loaded
 	aasworld.loaded = qtrue;
 	//close the file
-	botimport.FS_FCloseFile(fp);
+	botimport.FSCloseFile(fp);
 	//
 #ifdef AASFILEDEBUG
 	AAS_FileInfo();
@@ -577,6 +577,6 @@ qboolean AAS_WriteAASFile(char *filename)
 	AAS_DData((unsigned char *) &header + 8, sizeof(aas_header_t) - 8);
 	botimport.FS_Write(&header, sizeof(aas_header_t), fp);
 	//close the file
-	botimport.FS_FCloseFile(fp);
+	botimport.FSCloseFile(fp);
 	return qtrue;
 } //end of the function AAS_WriteAASFile

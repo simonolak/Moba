@@ -149,7 +149,7 @@ void SVNetchanTransmitNextFragment(client_t *client) {
         client->netchan_end_queue = &client->netchan_start_queue;
       } else
         Com_DPrintf("#462 Netchan_TransmitNextFragment: remaining queued message\n");
-      Z_Free(netbuf);
+      ZFree(netbuf);
     }
   }
 }

@@ -213,7 +213,7 @@ void Con_Dump_f (void)
 		FS_Write(buffer, strlen(buffer), f);
 	}
 
-	FS_FCloseFile( f );
+	FSCloseFile( f );
 }
 
 						

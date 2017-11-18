@@ -1056,8 +1056,8 @@ void VM_Compile( vm_t *vm, vmHeader_t *header ) {
 	vm->codeLength = compiledOfs;
 	vm->codeBase = Hunk_Alloc( compiledOfs, h_low );
 	Com_Memcpy( vm->codeBase, buf, compiledOfs );
-	Z_Free( buf );
-	Z_Free( jused );
+	ZFree( buf );
+	ZFree( jused );
 	Com_Printf( "VM file %s compiled to %i bytes of code\n", vm->name, compiledOfs );
 
 	// offset all the instruction pointers for the new location

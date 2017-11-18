@@ -527,7 +527,7 @@ void CLParseDownload(msg_t *msg) {
 
   if (!size) { // A zero length block means EOF
     if (clc.download) {
-      FS_FCloseFile(clc.download);
+      FSCloseFile(clc.download);
       clc.download = 0;
 
       // rename the file

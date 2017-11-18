@@ -70,7 +70,7 @@ void FreeWinding (winding_t *w)
 	*(unsigned *)w = 0xdeaddead;
 
 	c_active_windings--;
-	Z_Free (w);
+	ZFree (w);
 }
 
 /*

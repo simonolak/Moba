@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
-static void SV_CloseDownload( client_t *cl );
+static void SVCloseDownload( client_t *cl );
 
 /*
 =================
@@ -60,7 +60,7 @@ void SV_GetChallenge( netadr_t from ) {
 	// see if we already have a challenge for this ip
 	challenge = &svs.challenges[0];
 	for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
-		if ( !challenge->connected && NET_CompareAdr( from, challenge->adr ) ) {
+		if ( !challenge->connected && NETCompareAdr( from, challenge->adr ) ) {
 			break;
 		}
 		if ( challenge->time < oldestTime ) {
@@ -278,7 +278,7 @@ void SV_DirectConnect( netadr_t from ) {
 		int		ping;
 
 		for (i=0 ; i<MAX_CHALLENGES ; i++) {
-			if (NET_CompareAdr(from, svs.challenges[i].adr)) {
+			if (NETCompareAdr(from, svs.challenges[i].adr)) {
 				if ( challenge == svs.challenges[i].challenge ) {
 					break;		// good
 				}
@@ -380,7 +380,7 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 			// if they're all bots
 			if (count >= sv_maxclients->integer - startIndex) {
-				SV_DropClient(&svs.clients[sv_maxclients->integer - 1], "only bots on server");
+				SVDropClient(&svs.clients[sv_maxclients->integer - 1], "only bots on server");
 				newcl = &svs.clients[sv_maxclients->integer - 1];
 			}
 			else {
@@ -456,80 +456,78 @@ gotnewcl:
 		}
 	}
 	if ( count == 1 || count == sv_maxclients->integer ) {
-		SV_Heartbeat_f();
+		SVHeartbeat();
 	}
 }
 
-
 /*
 =====================
-SV_DropClient
-
+SVDropClient
 Called when the player is totally leaving the server, either willingly
 or unwillingly.  This is NOT called if the entire server is quiting
 or crashing -- SV_FinalMessage() will handle that
 =====================
 */
-void SV_DropClient( client_t *drop, const char *reason ) {
-	int		i;
-	challenge_t	*challenge;
+void SVDropClient(client_t *drop, const char *reason) {
+  int		i;
+  challenge_t	*challenge;
 
-	if ( drop->state == CS_ZOMBIE ) {
-		return;		// already dropped
-	}
+  if (drop->state == CS_ZOMBIE) {
+    return;		// already dropped
+  }
 
-	if ( !drop->gentity || !(drop->gentity->r.svFlags & SVF_BOT) ) {
-		// see if we already have a challenge for this ip
-		challenge = &svs.challenges[0];
+  if (!drop->gentity || !(drop->gentity->r.svFlags & SVF_BOT)) {
+    // see if we already have a challenge for this ip
+    challenge = &svs.challenges[0];
 
-		for (i = 0 ; i < MAX_CHALLENGES ; i++, challenge++) {
-			if ( NET_CompareAdr( drop->netchan.remoteAddress, challenge->adr ) ) {
-				challenge->connected = qfalse;
-				break;
-			}
-		}
-	}
+    for (i = 0; i < MAX_CHALLENGES; i++, challenge++) {
+      if (NETCompareAdr(drop->netchan.remoteAddress, challenge->adr)) {
+        challenge->connected = qfalse;
+        break;
+      }
+    }
+  }
 
-	// Kill any download
-	SV_CloseDownload( drop );
+  // Kill any download
+  SVCloseDownload(drop);
 
-	// tell everyone why they got dropped
-	SVSendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
+  // tell everyone why they got dropped
+  SVSendServerCommand(NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason);
 
-	Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
-	drop->state = CS_ZOMBIE;		// become free in a few seconds
+  Com_DPrintf("Going to CS_ZOMBIE for %s\n", drop->name);
+  drop->state = CS_ZOMBIE;		// become free in a few seconds
 
-	if (drop->download)	{
-		FS_FCloseFile( drop->download );
-		drop->download = 0;
-	}
+  if (drop->download) {
+    FSCloseFile(drop->download);
+    drop->download = 0;
+  }
 
-	// call the prog function for removing a client
-	// this will remove the body, among other things
-	VM_Call( gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients );
+  // call the prog function for removing a client
+  // this will remove the body, among other things
+  VM_Call(gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients);
 
-	// add the disconnect command
-	SVSendServerCommand( drop, "disconnect \"%s\"", reason);
+  // add the disconnect command
+  SVSendServerCommand(drop, "disconnect \"%s\"", reason);
 
-	if ( drop->netchan.remoteAddress.type == NA_BOT ) {
-		SV_BotFreeClient( drop - svs.clients );
-	}
+  if (drop->netchan.remoteAddress.type == NA_BOT) {
+    SVBotFreeClient(drop - svs.clients);
+  }
 
-	// nuke user info
-	SV_SetUserinfo( drop - svs.clients, "" );
+  // nuke user info
+  SVSetUserinfo(drop - svs.clients, "");
 
-	// if this was the last client on the server, send a heartbeat
-	// to the master so it is known the server is empty
-	// send a heartbeat now so the master will get up to date info
-	// if there is already a slot for this ip, reuse it
-	for (i=0 ; i < sv_maxclients->integer ; i++ ) {
-		if ( svs.clients[i].state >= CS_CONNECTED ) {
-			break;
-		}
-	}
-	if ( i == sv_maxclients->integer ) {
-		SV_Heartbeat_f();
-	}
+  // if this was the last client on the server, send a heartbeat
+  // to the master so it is known the server is empty
+  // send a heartbeat now so the master will get up to date info
+  // if there is already a slot for this ip, reuse it
+  for (i = 0; i < sv_maxclients->integer; i++) {
+    if (svs.clients[i].state >= CS_CONNECTED) {
+      break;
+    }
+  }
+  if (i == sv_maxclients->integer) {
+    SVHeartbeat();
+  }
 }
 
 /*
@@ -644,29 +642,27 @@ CLIENT COMMAND EXECUTION
 
 /*
 ==================
-SV_CloseDownload
-
+SVCloseDownload
 clear/free any download vars
 ==================
 */
-static void SV_CloseDownload( client_t *cl ) {
-	int i;
+static void SVCloseDownload(client_t *cl) {
+  int i;
 
-	// EOF
-	if (cl->download) {
-		FS_FCloseFile( cl->download );
-	}
-	cl->download = 0;
-	*cl->downloadName = 0;
+  // EOF
+  if (cl->download) {
+    FSCloseFile(cl->download);
+  }
+  cl->download = 0;
+  *cl->downloadName = 0;
 
-	// Free the temporary buffer space
-	for (i = 0; i < MAX_DOWNLOAD_WINDOW; i++) {
-		if (cl->downloadBlocks[i]) {
-			Z_Free( cl->downloadBlocks[i] );
-			cl->downloadBlocks[i] = NULL;
-		}
-	}
-
+  // Free the temporary buffer space
+  for (i = 0; i < MAX_DOWNLOAD_WINDOW; i++) {
+    if (cl->downloadBlocks[i]) {
+      ZFree(cl->downloadBlocks[i]);
+      cl->downloadBlocks[i] = NULL;
+    }
+  }
 }
 
 /*
@@ -680,7 +676,7 @@ void SV_StopDownload_f( client_t *cl ) {
 	if (*cl->downloadName)
 		Com_DPrintf( "clientDownload: %d : file \"%s\" aborted\n", cl - svs.clients, cl->downloadName );
 
-	SV_CloseDownload( cl );
+	SVCloseDownload( cl );
 }
 
 /*
@@ -714,7 +710,7 @@ void SV_NextDownload_f( client_t *cl )
 		// Find out if we are done.  A zero-length block indicates EOF
 		if (cl->downloadBlockSize[cl->downloadClientBlock % MAX_DOWNLOAD_WINDOW] == 0) {
 			Com_Printf( "clientDownload: %d : file \"%s\" completed\n", cl - svs.clients, cl->downloadName );
-			SV_CloseDownload( cl );
+			SVCloseDownload( cl );
 			return;
 		}
 
@@ -725,7 +721,7 @@ void SV_NextDownload_f( client_t *cl )
 	// We aren't getting an acknowledge for the correct block, drop the client
 	// FIXME: this is bad... the client will never parse the disconnect message
 	//			because the cgame isn't loaded yet
-	SV_DropClient( cl, "broken download" );
+	SVDropClient( cl, "broken download" );
 }
 
 /*
@@ -736,7 +732,7 @@ SV_BeginDownload_f
 void SV_BeginDownload_f( client_t *cl ) {
 
 	// Kill any existing download
-	SV_CloseDownload( cl );
+	SVCloseDownload( cl );
 
 	// cl->downloadName is non-zero now, SV_WriteDownloadToClient will see this and open
 	// the file itself
@@ -928,7 +924,7 @@ The client is going to disconnect, so remove the connection immediately  FIXME: 
 =================
 */
 static void SV_Disconnect_f( client_t *cl ) {
-	SV_DropClient( cl, "disconnected" );
+	SVDropClient( cl, "disconnected" );
 }
 
 /*
@@ -1089,7 +1085,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			cl->nextSnapshotTime = -1;
 			cl->state = CS_ACTIVE;
 			SVSendClientSnapshot( cl );
-			SV_DropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
+			SVDropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
 		}
 	}
 }
@@ -1265,7 +1261,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	if ( seq > cl->lastClientCommand + 1 ) {
 		Com_Printf( "Client %s lost %i clientCommands\n", cl->name, 
 			seq - cl->lastClientCommand + 1 );
-		SV_DropClient( cl, "Lost reliable commands" );
+		SVDropClient( cl, "Lost reliable commands" );
 		return qfalse;
 	}
 
@@ -1395,7 +1391,7 @@ static void SV_UserMove( client_t *cl, msg_t *msg, qboolean delta ) {
 	
 	// a bad cp command was sent, drop the client
 	if (sv_pure->integer != 0 && cl->pureAuthentic == 0) {		
-		SV_DropClient( cl, "Cannot validate pure client!");
+		SVDropClient( cl, "Cannot validate pure client!");
 		return;
 	}
 
@@ -1454,7 +1450,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 		// usually only hackers create messages like this
 		// it is more annoying for them to let them hanging
 #ifndef NDEBUG
-		SV_DropClient( cl, "DEBUG: illegible client message" );
+		SVDropClient( cl, "DEBUG: illegible client message" );
 #endif
 		return;
 	}
@@ -1468,7 +1464,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 		// usually only hackers create messages like this
 		// it is more annoying for them to let them hanging
 #ifndef NDEBUG
-		SV_DropClient( cl, "DEBUG: illegible client message" );
+		SVDropClient( cl, "DEBUG: illegible client message" );
 #endif
 		cl->reliableAcknowledge = cl->reliableSequence;
 		return;

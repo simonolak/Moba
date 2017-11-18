@@ -61,7 +61,7 @@ void	IN_Move (usercmd_t *cmd);
 void	IN_DeactivateWin32Mouse( void);
 
 void	IN_Activate (qboolean active);
-void	IN_Frame (void);
+void	INFrame (void);
 
 // window procedure
 LONG WINAPI MainWndProc (

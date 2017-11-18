@@ -105,7 +105,7 @@ void SV_GameDropClient( int clientNum, const char *reason ) {
 	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 		return;
 	}
-	SV_DropClient( svs.clients + clientNum, reason );	
+	SVDropClient( svs.clients + clientNum, reason );	
 }
 
 
@@ -356,7 +356,7 @@ int SV_GameSystemCalls( int *args ) {
 		FS_Write( VMA(1), args[2], args[3] );
 		return 0;
 	case G_FS_FCLOSE_FILE:
-		FS_FCloseFile( args[1] );
+		FSCloseFile( args[1] );
 		return 0;
 	case G_FS_GETFILELIST:
 		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
@@ -407,7 +407,7 @@ int SV_GameSystemCalls( int *args ) {
 		SV_GetConfigstring( args[1], VMA(2), args[3] );
 		return 0;
 	case G_SET_USERINFO:
-		SV_SetUserinfo( args[1], VMA(2) );
+		SVSetUserinfo( args[1], VMA(2) );
 		return 0;
 	case G_GET_USERINFO:
 		SV_GetUserinfo( args[1], VMA(2), args[3] );
@@ -424,7 +424,7 @@ int SV_GameSystemCalls( int *args ) {
 	case G_BOT_ALLOCATE_CLIENT:
 		return SV_BotAllocateClient();
 	case G_BOT_FREE_CLIENT:
-		SV_BotFreeClient( args[1] );
+		SVBotFreeClient( args[1] );
 		return 0;
 
 	case G_GET_USERCMD:

@@ -296,14 +296,14 @@ static void SV_MapRestart_f( void ) {
 		}
 
 		// add the map_restart command
-		SV_AddServerCommand( client, "map_restart\n" );
+		SVAddServerCommand( client, "map_restart\n" );
 
 		// connect the client again, without the firstTime flag
 		denied = VM_ExplicitArgPtr( gvm, VM_Call( gvm, GAME_CLIENT_CONNECT, i, qfalse, isBot ) );
 		if ( denied ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
-			SV_DropClient( client, denied );
+			SVDropClient( client, denied );
 			Com_Printf( "SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i ); // bk010125
 			continue;
 		}
@@ -352,7 +352,7 @@ static void SV_Kick_f( void ) {
 				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
 					continue;
 				}
-				SV_DropClient( cl, "was kicked" );
+				SVDropClient( cl, "was kicked" );
 				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			}
 		}
@@ -364,7 +364,7 @@ static void SV_Kick_f( void ) {
 				if( cl->netchan.remoteAddress.type != NA_BOT ) {
 					continue;
 				}
-				SV_DropClient( cl, "was kicked" );
+				SVDropClient( cl, "was kicked" );
 				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			}
 		}
@@ -375,7 +375,7 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	SVDropClient( cl, "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
@@ -519,7 +519,7 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, "was kicked" );
+	SVDropClient( cl, "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
@@ -620,18 +620,15 @@ static void SV_ConSay_f(void) {
 	SVSendServerCommand(NULL, "chat \"%s\n\"", text);
 }
 
-
 /*
 ==================
-SV_Heartbeat_f
-
-Also called by SV_DropClient, SV_DirectConnect, and SV_SpawnServer
+SVHeartbeat
+Also called by SVDropClient, SV_DirectConnect, and SV_SpawnServer
 ==================
 */
-void SV_Heartbeat_f( void ) {
-	svs.nextHeartbeatTime = -9999999;
+void SVHeartbeat(void) {
+  svs.nextHeartbeatTime = -9999999;
 }
-
 
 /*
 ===========
@@ -715,7 +712,7 @@ void SV_AddOperatorCommands( void ) {
 	}
 	initialized = qtrue;
 
-	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f);
+	Cmd_AddCommand ("heartbeat", SVHeartbeat);
 	Cmd_AddCommand ("kick", SV_Kick_f);
 	Cmd_AddCommand ("banUser", SV_Ban_f);
 	Cmd_AddCommand ("banClient", SV_BanNum_f);

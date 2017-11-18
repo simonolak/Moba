@@ -711,20 +711,20 @@ void IN_Activate(qboolean active) {
 Called every frame, even if not generating commands
 ==================
 */
-void IN_Frame(void) {
+void INFrame(void) {
   // post joystick events
   IN_JoyMove();
 
-  //MARK: OlaK for debug {{
-  if (!s_wmv.mouseInitialized) {
-    if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
-      Com_Printf("Proceeding with delayed mouse init\n");
-      IN_StartupMouse();
-      s_wmv.mouseStartupDelayed = qfalse;
-    }
-    return;
-  }
-  //}}
+  ////MARK: OlaK for debug {{
+  //if (!s_wmv.mouseInitialized) {
+  //  if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
+  //    Com_Printf("Proceeding with delayed mouse init\n");
+  //    IN_StartupMouse();
+  //    s_wmv.mouseStartupDelayed = qfalse;
+  //  }
+  //  return;
+  //}
+  ////}}
 
   if (cls.keyCatchers & KEYCATCH_CONSOLE) {
     // temporarily deactivate if not in the game and

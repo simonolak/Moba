@@ -1354,7 +1354,7 @@ script_t *LoadScriptFile(const char *filename)
 	//
 #ifdef BOTLIB
 	botimport.FS_Read(script->buffer, length, fp);
-	botimport.FS_FCloseFile(fp);
+	botimport.FSCloseFile(fp);
 #else
 	if (fread(script->buffer, length, 1, fp) != 1)
 	{

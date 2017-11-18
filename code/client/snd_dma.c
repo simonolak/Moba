@@ -1414,7 +1414,7 @@ void S_StopBackgroundTrack( void ) {
 		return;
 	}
 	Sys_EndStreamedFile( s_backgroundFile );
-	FS_FCloseFile( s_backgroundFile );
+	FSCloseFile( s_backgroundFile );
 	s_backgroundFile = 0;
 	s_rawend = 0;
 }
@@ -1450,7 +1450,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ){
 	// if restarting the same back ground track
 	if ( s_backgroundFile ) {
 		Sys_EndStreamedFile( s_backgroundFile );
-		FS_FCloseFile( s_backgroundFile );
+		FSCloseFile( s_backgroundFile );
 		s_backgroundFile = 0;
 	}
 
@@ -1469,7 +1469,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ){
 
 	if ( !S_FindWavChunk( s_backgroundFile, "fmt " ) ) {
 		Com_Printf( "No fmt chunk in %s\n", name );
-		FS_FCloseFile( s_backgroundFile );
+		FSCloseFile( s_backgroundFile );
 		s_backgroundFile = 0;
 		return;
 	}
@@ -1483,7 +1483,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ){
 	s_backgroundInfo.width = FGetLittleShort( s_backgroundFile ) / 8;
 
 	if ( s_backgroundInfo.format != WAV_FORMAT_PCM ) {
-		FS_FCloseFile( s_backgroundFile );
+		FSCloseFile( s_backgroundFile );
 		s_backgroundFile = 0;
 		Com_Printf("Not a microsoft PCM format wav: %s\n", name);
 		return;
@@ -1494,7 +1494,7 @@ void S_StartBackgroundTrack( const char *intro, const char *loop ){
 	}
 
 	if ( ( len = S_FindWavChunk( s_backgroundFile, "data" ) ) == 0 ) {
-		FS_FCloseFile( s_backgroundFile );
+		FSCloseFile( s_backgroundFile );
 		s_backgroundFile = 0;
 		Com_Printf("No data chunk in %s\n", name);
 		return;
@@ -1577,7 +1577,7 @@ void S_UpdateBackgroundTrack( void ) {
 			// loop
 			if (s_backgroundLoop[0]) {
 				Sys_EndStreamedFile( s_backgroundFile );
-				FS_FCloseFile( s_backgroundFile );
+				FSCloseFile( s_backgroundFile );
 				s_backgroundFile = 0;
 				S_StartBackgroundTrack( s_backgroundLoop, s_backgroundLoop );
 				if ( !s_backgroundFile ) {

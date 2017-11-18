@@ -382,10 +382,10 @@ void	Sys_FreeFileList(char **list) {
   }
 
   for (i = 0; list[i]; i++) {
-    Z_Free(list[i]);
+    ZFree(list[i]);
   }
 
-  Z_Free(list);
+  ZFree(list);
 }
 
 //========================================================
@@ -777,7 +777,7 @@ void Sys_EndStreamedFile( fileHandle_t f ) {
   stream.sIO[f].file = 0;
   stream.sIO[f].active = qfalse;
 
-  Z_Free( stream.sIO[f].buffer );
+  ZFree( stream.sIO[f].buffer );
 
   LeaveCriticalSection( &stream.crit );
 }
@@ -901,7 +901,7 @@ void SysQueEvent(int time, sysEventType_t type, int value, int value2, int ptrLe
     Com_Printf("SysQueEvent: overflow\n");
     // we are discarding an event, but don't leak memory
     if (ev->evPtr) {
-      Z_Free(ev->evPtr);
+      ZFree(ev->evPtr);
     }
     eventTail++;
   }
@@ -1186,7 +1186,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     startTime = SysMilliseconds();
 
     //make sure mouse and joystick are only called once a frame
-    IN_Frame();
+    INFrame();
 
     //run the game
     ComFrame();

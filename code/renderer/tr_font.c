@@ -173,7 +173,7 @@ void WriteTGA (char *filename, byte *data, int width, int height) {
 	//fwrite (buffer, 1, c, f);
 	//fclose (f);
 
-	Z_Free (buffer);
+	ZFree (buffer);
 }
 
 static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, int *yOut, int *maxHeight, FT_Face face, const unsigned char c, qboolean calcHeight) {
@@ -199,8 +199,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
     }
 
     if (calcHeight) {
-      Z_Free(bitmap->buffer);
-      Z_Free(bitmap);
+      ZFree(bitmap->buffer);
+      ZFree(bitmap);
       return &glyph;
     }
 
@@ -221,8 +221,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
       if (*yOut + *maxHeight + 1 >= 255) {
         *yOut = -1;
         *xOut = -1;
-        Z_Free(bitmap->buffer);
-        Z_Free(bitmap);
+        ZFree(bitmap->buffer);
+        ZFree(bitmap);
         return &glyph;
       } else {
         *xOut = 0;
@@ -231,8 +231,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
     } else if (*yOut + *maxHeight + 1 >= 255) {
       *yOut = -1;
       *xOut = -1;
-      Z_Free(bitmap->buffer);
-      Z_Free(bitmap);
+      ZFree(bitmap->buffer);
+      ZFree(bitmap);
       return &glyph;
     }
 
@@ -287,8 +287,8 @@ static glyphInfo_t *RE_ConstructGlyphInfo(unsigned char *imageOut, int *xOut, in
     *xOut += scaled_width + 1;
   }
 
-  Z_Free(bitmap->buffer);
-  Z_Free(bitmap);
+  ZFree(bitmap->buffer);
+  ZFree(bitmap);
 
   return &glyph;
 }
@@ -496,7 +496,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 		  Com_Memset(out, 0, 1024*1024);
       xOut = 0;
       yOut = 0;
-      Z_Free(imageBuff);
+      ZFree(imageBuff);
 			i++;
     } else {
       Com_Memcpy(&font->glyphs[i], glyph, sizeof(glyphInfo_t));
@@ -512,7 +512,7 @@ void RE_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
 		ri.FS_WriteFile(va("fonts/fontImage_%i.dat", pointSize), font, sizeof(fontInfo_t));
 	}
 
-  Z_Free(out);
+  ZFree(out);
   
   ri.FS_FreeFile(faceData);
 #endif

@@ -71,21 +71,21 @@ int SV_BotAllocateClient(void) {
 
 /*
 ==================
-SV_BotFreeClient
+SVBotFreeClient
 ==================
 */
-void SV_BotFreeClient( int clientNum ) {
-	client_t	*cl;
+void SVBotFreeClient(int clientNum) {
+  client_t	*cl;
 
-	if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
-		Com_Error( ERR_DROP, "SV_BotFreeClient: bad clientNum: %i", clientNum );
-	}
-	cl = &svs.clients[clientNum];
-	cl->state = CS_FREE;
-	cl->name[0] = 0;
-	if ( cl->gentity ) {
-		cl->gentity->r.svFlags &= ~SVF_BOT;
-	}
+  if (clientNum < 0 || clientNum >= sv_maxclients->integer) {
+    Com_Error(ERR_DROP, "SVBotFreeClient: bad clientNum: %i", clientNum);
+  }
+  cl = &svs.clients[clientNum];
+  cl->state = CS_FREE;
+  cl->name[0] = 0;
+  if (cl->gentity) {
+    cl->gentity->r.svFlags &= ~SVF_BOT;
+  }
 }
 
 /*
@@ -294,7 +294,7 @@ BotImport_FreeMemory
 ==================
 */
 void BotImport_FreeMemory(void *ptr) {
-	Z_Free(ptr);
+	ZFree(ptr);
 }
 
 /*
@@ -517,7 +517,7 @@ void SV_BotInitBotLib(void) {
 		Com_Error( ERR_NEED_CD, "Game CD not in drive" );
 	}
 
-	if (debugpolygons) Z_Free(debugpolygons);
+	if (debugpolygons) ZFree(debugpolygons);
 	bot_maxdebugpolys = Cvar_VariableIntegerValue("bot_maxdebugpolys");
 	debugpolygons = Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys);
 
@@ -540,7 +540,7 @@ void SV_BotInitBotLib(void) {
 	botlib_import.FS_FOpenFile = FS_FOpenFileByMode;
 	botlib_import.FS_Read = FS_Read2;
 	botlib_import.FS_Write = FS_Write;
-	botlib_import.FS_FCloseFile = FS_FCloseFile;
+	botlib_import.FSCloseFile = FSCloseFile;
 	botlib_import.FS_Seek = FS_Seek;
 
 	//debug lines

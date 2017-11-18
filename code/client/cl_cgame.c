@@ -452,7 +452,7 @@ int CL_CgameSystemCalls( int *args ) {
 		FS_Write( VMA(1), args[2], args[3] );
 		return 0;
 	case CG_FS_FCLOSEFILE:
-		FS_FCloseFile( args[1] );
+		FSCloseFile( args[1] );
 		return 0;
 	case CG_FS_SEEK:
 		return FS_Seek( args[1], args[2], args[3] );

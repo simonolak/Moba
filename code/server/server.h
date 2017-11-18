@@ -265,7 +265,7 @@ void SV_MasterShutdown (void);
 void SVSetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 
-void SV_SetUserinfo( int index, const char *val );
+void SVSetUserinfo( int index, const char *val );
 void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 
 void SV_ChangeMaxClients( void );
@@ -286,7 +286,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
 
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd );
-void SV_DropClient( client_t *drop, const char *reason );
+void SVDropClient( client_t *drop, const char *reason );
 
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK );
 void SV_ClientThink (client_t *cl, usercmd_t *cmd);
@@ -296,12 +296,12 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg );
 //
 // sv_ccmds.c
 //
-void SV_Heartbeat_f( void );
+void SVHeartbeat( void );
 
 //
 // sv_snapshot.c
 //
-void SV_AddServerCommand( client_t *client, const char *cmd );
+void SVAddServerCommand( client_t *client, const char *cmd );
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
@@ -326,7 +326,7 @@ qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
 //
 void		SVBotFrame( int time );
 int			SV_BotAllocateClient(void);
-void		SV_BotFreeClient( int clientNum );
+void		SVBotFreeClient( int clientNum );
 
 void		SV_BotInitCvars(void);
 int			SV_BotLibSetup( void );

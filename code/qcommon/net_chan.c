@@ -512,7 +512,7 @@ const char	*NET_AdrToString (netadr_t a)
 }
 
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+qboolean	NETCompareAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
 		return qfalse;
@@ -534,7 +534,7 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 		return qfalse;
 	}
 
-	Com_Printf ("NET_CompareAdr: bad address type\n");
+	Com_Printf ("NETCompareAdr: bad address type\n");
 	return qfalse;
 }
 

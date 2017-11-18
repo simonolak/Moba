@@ -309,7 +309,7 @@ void Field_Paste( field_t *edit ) {
 		Field_CharEvent( edit, cbd[i] );
 	}
 
-	Z_Free( cbd );
+	ZFree( cbd );
 }
 
 /*
@@ -789,7 +789,7 @@ void Key_SetBinding( int keynum, const char *binding ) {
 
 	// free old bindings
 	if ( keys[ keynum ].binding ) {
-		Z_Free( keys[ keynum ].binding );
+		ZFree( keys[ keynum ].binding );
 	}
 		
 	// allocate memory for new binding

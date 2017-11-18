@@ -2913,7 +2913,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 2000-02-27  Bernd Kreimeier  <bk@lokigames.com>
 
 	* unix/Makefile: added dmalloc in an attempt to get on
-	the Z_Free bug. Futile. Despite stripping dmalloc debug
+	the ZFree bug. Futile. Despite stripping dmalloc debug
 	token down to essentials, I get a (seemingly bogus or
 	unrelated):
 	  debug-malloc library: dumping program, fatal error
@@ -2923,7 +2923,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 2000-02-26  Bernd Kreimeier  <bk@lokigames.com>
 
 	* qcommon/common.c: various debug builts to isolate the
-	Z_Free bug. It reproducibly happens on some machines
+	ZFree bug. It reproducibly happens on some machines
 	with SE_PACKET, but the packets themselves look
 	thoroughly corrupted.
 

@@ -806,7 +806,7 @@ void FS_Rename( const char *from, const char *to ) {
 
 /*
 ==============
-FS_FCloseFile
+FSCloseFile
 
 If the FILE pointer is an open pak file, leave it open.
 
@@ -814,7 +814,7 @@ For some reason, other dll's can't just cal fclose()
 on files returned by FS_FOpenFile...
 ==============
 */
-void FS_FCloseFile( fileHandle_t f ) {
+void FSCloseFile( fileHandle_t f ) {
 	if ( !fs_searchpaths ) {
 		Com_Error( ERR_FATAL, "Filesystem call made without initialization\n" );
 	}
@@ -1577,7 +1577,7 @@ int FS_ReadFile( const char *qpath, void **buffer ) {
 			FS_Write( &len, sizeof( len ), com_journalDataFile );
 			FS_Flush( com_journalDataFile );
 		}
-		FS_FCloseFile( h);
+		FSCloseFile( h);
 		return len;
 	}
 
@@ -1591,7 +1591,7 @@ int FS_ReadFile( const char *qpath, void **buffer ) {
 
 	// guarantee that it will have a trailing 0 for string operations
 	buf[len] = 0;
-	FS_FCloseFile( h );
+	FSCloseFile( h );
 
 	// if we are journalling and it is a config file, write it to the journal file
 	if ( isConfig && com_journal && com_journal->integer == 1 ) {
@@ -1651,7 +1651,7 @@ void FS_WriteFile( const char *qpath, const void *buffer, int size ) {
 
 	FS_Write( buffer, size, f );
 
-	FS_FCloseFile( f );
+	FSCloseFile( f );
 }
 
 
@@ -1767,7 +1767,7 @@ static pack_t *FS_LoadZipFile( char *zipfile, const char *basename )
 	pack->checksum = LittleLong( pack->checksum );
 	pack->pure_checksum = LittleLong( pack->pure_checksum );
 
-	Z_Free(fs_headerLongs);
+	ZFree(fs_headerLongs);
 
 	pack->buildBuffer = buildBuffer;
 	return pack;
@@ -1989,10 +1989,10 @@ void FS_FreeFileList( char **list ) {
 	}
 
 	for ( i = 0 ; list[i] ; i++ ) {
-		Z_Free( list[i] );
+		ZFree( list[i] );
 	}
 
-	Z_Free( list );
+	ZFree( list );
 }
 
 
@@ -2093,9 +2093,9 @@ static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2
 
   // Free our old lists.
   // NOTE: not freeing their content, it's been merged in dst and still being used
-  if (list0) Z_Free( list0 );
-  if (list1) Z_Free( list1 );
-  if (list2) Z_Free( list2 );
+  if (list0) ZFree( list0 );
+  if (list1) ZFree( list1 );
+  if (list2) ZFree( list2 );
 
   return cat;
 }
@@ -2197,7 +2197,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
           if (nDescLen >= 0) {
             descPath[nDescLen] = '\0';
           }
-          FS_FCloseFile(descHandle);
+          FSCloseFile(descHandle);
         } else {
           strcpy(descPath, name);
         }
@@ -2341,7 +2341,7 @@ void FS_SortFileList(char **filelist, int numfiles) {
 		numsortedfiles++;
 	}
 	Com_Memcpy(filelist, sortedlist, numfiles * sizeof( *filelist ) );
-	Z_Free(sortedlist);
+	ZFree(sortedlist);
 }
 
 /*
@@ -2430,7 +2430,7 @@ void FS_TouchFile_f( void ) {
 
 	FS_FOpenFileRead( Cmd_Argv( 1 ), &f, qfalse );
 	if ( f ) {
-		FS_FCloseFile( f );
+		FSCloseFile( f );
 	}
 }
 
@@ -2653,7 +2653,7 @@ void FS_Shutdown( qboolean closemfp ) {
 
 	for(i = 0; i < MAX_FILE_HANDLES; i++) {
 		if (fsh[i].fileSize) {
-			FS_FCloseFile(i);
+			FSCloseFile(i);
 		}
 	}
 
@@ -2663,13 +2663,13 @@ void FS_Shutdown( qboolean closemfp ) {
 
 		if ( p->pack ) {
 			unzClose(p->pack->handle);
-			Z_Free( p->pack->buildBuffer );
-			Z_Free( p->pack );
+			ZFree( p->pack->buildBuffer );
+			ZFree( p->pack );
 		}
 		if ( p->dir ) {
-			Z_Free( p->dir );
+			ZFree( p->dir );
 		}
-		Z_Free( p );
+		ZFree( p );
 	}
 
 	// any FS_ calls will now be an error until reinitialized
@@ -3166,7 +3166,7 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames ) {
 
 	for ( i = 0 ; i < c ; i++ ) {
 		if (fs_serverPakNames[i]) {
-			Z_Free(fs_serverPakNames[i]);
+			ZFree(fs_serverPakNames[i]);
 		}
 		fs_serverPakNames[i] = NULL;
 	}
@@ -3211,7 +3211,7 @@ void FS_PureServerSetReferencedPaks( const char *pakSums, const char *pakNames )
 
 	for ( i = 0 ; i < c ; i++ ) {
 		if (fs_serverReferencedPakNames[i]) {
-			Z_Free(fs_serverReferencedPakNames[i]);
+			ZFree(fs_serverReferencedPakNames[i]);
 		}
 		fs_serverReferencedPakNames[i] = NULL;
 	}

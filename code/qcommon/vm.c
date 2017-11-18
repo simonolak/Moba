@@ -571,13 +571,13 @@ void VM_Free( vm_t *vm ) {
 	}
 #if 0	// now automatically freed by hunk
 	if ( vm->codeBase ) {
-		Z_Free( vm->codeBase );
+		ZFree( vm->codeBase );
 	}
 	if ( vm->dataBase ) {
-		Z_Free( vm->dataBase );
+		ZFree( vm->dataBase );
 	}
 	if ( vm->instructionPointers ) {
-		Z_Free( vm->instructionPointers );
+		ZFree( vm->instructionPointers );
 	}
 #endif
 	Com_Memset( vm, 0, sizeof( *vm ) );
@@ -659,48 +659,48 @@ locals from sp
 #define	MAX_STACK	256
 #define	STACK_MASK	(MAX_STACK-1)
 
-int	QDECL VM_Call( vm_t *vm, int callnum, ... ) {
-	vm_t	*oldVM;
-	int		r;
-	int i;
-	int args[16];
-	va_list ap;
+int	QDECL VM_Call(vm_t *vm, int callnum, ...) {
+  vm_t	*oldVM;
+  int		r;
+  int i;
+  int args[16];
+  va_list ap;
 
 
-	if ( !vm ) {
-		Com_Error( ERR_FATAL, "VM_Call with NULL vm" );
-	}
+  if (!vm) {
+    Com_Error(ERR_FATAL, "VM_Call with NULL vm");
+  }
 
-	oldVM = currentVM;
-	currentVM = vm;
-	lastVM = vm;
+  oldVM = currentVM;
+  currentVM = vm;
+  lastVM = vm;
 
-	if ( vm_debugLevel ) {
-	  Com_Printf( "VM_Call( %i )\n", callnum );
-	}
+  if (vm_debugLevel) {
+    Com_Printf("VM_Call( %i )\n", callnum);
+  }
 
-	// if we have a dll loaded, call it directly
-	if ( vm->entryPoint ) {
-		//rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.
-		va_start(ap, callnum);
-		for (i = 0; i < sizeof (args) / sizeof (args[i]); i++) {
-			args[i] = va_arg(ap, int);
-		}
-		va_end(ap);
+  // if we have a dll loaded, call it directly
+  if (vm->entryPoint) {
+    //rcg010207 -  see dissertation at top of VM_DllSyscall() in this file.
+    va_start(ap, callnum);
+    for (i = 0; i < sizeof (args) / sizeof (args[i]); i++) {
+      args[i] = va_arg(ap, int);
+    }
+    va_end(ap);
 
-		r = vm->entryPoint( callnum,  args[0],  args[1],  args[2], args[3],
-                            args[4],  args[5],  args[6], args[7],
-                            args[8],  args[9], args[10], args[11],
-                            args[12], args[13], args[14], args[15]);
-	} else if ( vm->compiled ) {
-		r = VM_CallCompiled( vm, &callnum );
-	} else {
-		r = VM_CallInterpreted( vm, &callnum );
-	}
+    r = vm->entryPoint(callnum, args[0], args[1], args[2], args[3],
+      args[4], args[5], args[6], args[7],
+      args[8], args[9], args[10], args[11],
+      args[12], args[13], args[14], args[15]);
+  } else if (vm->compiled) {
+    r = VM_CallCompiled(vm, &callnum);
+  } else {
+    r = VM_CallInterpreted(vm, &callnum);
+  }
 
-	if ( oldVM != NULL ) // bk001220 - assert(currentVM!=NULL) for oldVM==NULL
-	  currentVM = oldVM;
-	return r;
+  if (oldVM != NULL) // bk001220 - assert(currentVM!=NULL) for oldVM==NULL
+    currentVM = oldVM;
+  return r;
 }
 
 //=================================================================
@@ -758,7 +758,7 @@ void VM_VmProfile_f(void) {
 
 	Com_Printf("    %9.0f total\n", total );
 
-	Z_Free( sorted );
+	ZFree( sorted );
 }
 
 void VM_VmInfo_f( void ) {

@@ -200,7 +200,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		if ( ( var->flags & CVAR_USER_CREATED ) && !( flags & CVAR_USER_CREATED )
 			&& var_value[0] ) {
 			var->flags &= ~CVAR_USER_CREATED;
-			Z_Free( var->resetString );
+			ZFree( var->resetString );
 			var->resetString = CopyString( var_value );
 
 			// ZOID--needs to be set so that cvars the game sets as 
@@ -212,7 +212,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		// only allow one non-empty reset string without a warning
 		if ( !var->resetString[0] ) {
 			// we don't have a reset string yet
-			Z_Free( var->resetString );
+			ZFree( var->resetString );
 			var->resetString = CopyString( var_value );
 		} else if ( var_value[0] && strcmp( var->resetString, var_value ) ) {
 			Com_DPrintf( "Warning: cvar \"%s\" given initial values: \"%s\" and \"%s\"\n",
@@ -225,7 +225,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 			s = var->latchedString;
 			var->latchedString = NULL;	// otherwise cvar_set2 would free it
 			Cvar_Set2( var_name, s, qtrue );
-			Z_Free( s );
+			ZFree( s );
 		}
 
 // use a CVAR_SET for rom sets, get won't override
@@ -327,7 +327,7 @@ cvar_t *Cvar_Set2(const char *var_name, const char *value, qboolean force) {
       {
         if (strcmp(value, var->latchedString) == 0)
           return var;
-        Z_Free (var->latchedString);
+        ZFree (var->latchedString);
       } else {
         if (strcmp(value, var->string) == 0)
           return var;
@@ -347,7 +347,7 @@ cvar_t *Cvar_Set2(const char *var_name, const char *value, qboolean force) {
     }
   } else {
     if (var->latchedString) {
-      Z_Free(var->latchedString);
+      ZFree(var->latchedString);
       var->latchedString = NULL;
     }
   }
@@ -358,7 +358,7 @@ cvar_t *Cvar_Set2(const char *var_name, const char *value, qboolean force) {
   var->modified = qtrue;
   var->modificationCount++;
 
-  Z_Free(var->string); //free the old value string
+  ZFree(var->string); //free the old value string
 
   var->string = CopyString(value);
   var->value = atof(var->string);
@@ -424,7 +424,7 @@ void Cvar_SetCheatState( void ) {
       // because of a different var->latchedString
       if (var->latchedString)
       {
-        Z_Free(var->latchedString);
+        ZFree(var->latchedString);
         var->latchedString = NULL;
       }
 			if (strcmp(var->resetString,var->string)) {
@@ -714,16 +714,16 @@ void Cvar_Restart_f( void ) {
 		if ( var->flags & CVAR_USER_CREATED ) {
 			*prev = var->next;
 			if ( var->name ) {
-				Z_Free( var->name );
+				ZFree( var->name );
 			}
 			if ( var->string ) {
-				Z_Free( var->string );
+				ZFree( var->string );
 			}
 			if ( var->latchedString ) {
-				Z_Free( var->latchedString );
+				ZFree( var->latchedString );
 			}
 			if ( var->resetString ) {
-				Z_Free( var->resetString );
+				ZFree( var->resetString );
 			}
 			// clear the var completely, since we
 			// can't remove the index from the list

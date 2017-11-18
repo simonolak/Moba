@@ -1145,7 +1145,7 @@ static void RoQReset() {
 	if (currentHandle < 0) return;
 
 	Sys_EndStreamedFile(cinTable[currentHandle].iFile);
-	FS_FCloseFile( cinTable[currentHandle].iFile );
+	FSCloseFile( cinTable[currentHandle].iFile );
 	FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, qtrue);
 	// let the background thread start reading ahead
 	Sys_BeginStreamedFile( cinTable[currentHandle].iFile, 0x10000 );
@@ -1345,7 +1345,7 @@ static void RoQShutdown( void ) {
 
 	if (cinTable[currentHandle].iFile) {
 		Sys_EndStreamedFile( cinTable[currentHandle].iFile );
-		FS_FCloseFile( cinTable[currentHandle].iFile );
+		FSCloseFile( cinTable[currentHandle].iFile );
 		cinTable[currentHandle].iFile = 0;
 	}
 

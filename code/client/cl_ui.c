@@ -65,7 +65,7 @@ void LAN_LoadCachedServers( ) {
 			cls.numglobalservers = cls.nummplayerservers = cls.numfavoriteservers = 0;
 			cls.numGlobalServerAddresses = 0;
 		}
-		FS_FCloseFile(fileIn);
+		FSCloseFile(fileIn);
 	}
 }
 
@@ -85,7 +85,7 @@ void LAN_SaveServersToCache( ) {
 	FS_Write(&cls.globalServers, sizeof(cls.globalServers), fileOut);
 	FS_Write(&cls.mplayerServers, sizeof(cls.mplayerServers), fileOut);
 	FS_Write(&cls.favoriteServers, sizeof(cls.favoriteServers), fileOut);
-	FS_FCloseFile(fileOut);
+	FSCloseFile(fileOut);
 }
 
 
@@ -158,7 +158,7 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 	if (servers && *count < max) {
 		NET_StringToAdr( address, &adr );
 		for ( i = 0; i < *count; i++ ) {
-			if (NET_CompareAdr(servers[i].adr, adr)) {
+			if (NETCompareAdr(servers[i].adr, adr)) {
 				break;
 			}
 		}
@@ -205,7 +205,7 @@ static void LAN_RemoveServer(int source, const char *addr) {
 		netadr_t comp;
 		NET_StringToAdr( addr, &comp );
 		for (i = 0; i < *count; i++) {
-			if (NET_CompareAdr( comp, servers[i].adr)) {
+			if (NETCompareAdr( comp, servers[i].adr)) {
 				int j = i;
 				while (j < *count - 1) {
 					Com_Memcpy(&servers[j], &servers[j+1], sizeof(servers[j]));
@@ -633,7 +633,7 @@ static void GetClipboardData( char *buf, int buflen ) {
 
 	Q_strncpyz( buf, cbd, buflen );
 
-	Z_Free( cbd );
+	ZFree( cbd );
 }
 
 /*
@@ -839,7 +839,7 @@ int CL_UISystemCalls( int *args ) {
 		return 0;
 
 	case UI_FS_FCLOSEFILE:
-		FS_FCloseFile( args[1] );
+		FSCloseFile( args[1] );
 		return 0;
 
 	case UI_FS_GETFILELIST:

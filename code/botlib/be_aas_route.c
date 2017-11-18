@@ -1018,7 +1018,7 @@ void AAS_WriteRouteCache(void)
 	}
 	*/
 	//
-	botimport.FS_FCloseFile(fp);
+	botimport.FSCloseFile(fp);
 	botimport.Print(PRT_MESSAGE, "\nroute cache written to %s\n", filename);
 	botimport.Print(PRT_MESSAGE, "written %d bytes of routing cache\n", totalsize);
 } //end of the function AAS_WriteRouteCache
@@ -1129,7 +1129,7 @@ int AAS_ReadRouteCache(void)
 	}
 	*/
 	//
-	botimport.FS_FCloseFile(fp);
+	botimport.FSCloseFile(fp);
 	return qtrue;
 } //end of the function AAS_ReadRouteCache
 //===========================================================================

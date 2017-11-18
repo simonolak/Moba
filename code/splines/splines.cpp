@@ -31,7 +31,7 @@ int FS_Write( const void *buffer, int len, fileHandle_t h );
 int FS_ReadFile( const char *qpath, void **buffer );
 void FS_FreeFile( void *buffer );
 fileHandle_t FS_FOpenFileWrite( const char *filename );
-void FS_FCloseFile( fileHandle_t f );
+void FSCloseFile( fileHandle_t f );
 }
 
 float Q_fabs( float f ) {
@@ -765,7 +765,7 @@ void idCameraDef::save(const char *filename) {
 		s = "}\n";
 		FS_Write(s.c_str(), s.length(), file);
 	}
-	FS_FCloseFile(file);
+	FSCloseFile(file);
 }
 
 int idCameraDef::sortEvents(const void *p1, const void *p2) {
