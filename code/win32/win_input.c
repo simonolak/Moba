@@ -715,7 +715,7 @@ void IN_Frame(void) {
   // post joystick events
   IN_JoyMove();
 
-  //MARK: OlaK {{
+  ////MARK: OlaK for debug {{
   //if (!s_wmv.mouseInitialized) {
   //  if (s_wmv.mouseStartupDelayed && g_wv.hWnd) {
   //    Com_Printf("Proceeding with delayed mouse init\n");
@@ -724,7 +724,7 @@ void IN_Frame(void) {
   //  }
   //  return;
   //}
-  //}}
+  ////}}
 
   if (cls.keyCatchers & KEYCATCH_CONSOLE) {
     // temporarily deactivate if not in the game and

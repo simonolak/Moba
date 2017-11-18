@@ -741,10 +741,10 @@ void Cvar_Restart_f( void ) {
 
 /*
 =====================
-Cvar_InfoString
+CvarInfoString
 =====================
 */
-char	*Cvar_InfoString( int bit ) {
+char *CvarInfoString( int bit ) {
 	static char	info[MAX_INFO_STRING];
 	cvar_t	*var;
 
@@ -787,7 +787,7 @@ Cvar_InfoStringBuffer
 =====================
 */
 void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
-	Q_strncpyz(buff,Cvar_InfoString(bit),buffsize);
+	Q_strncpyz(buff,CvarInfoString(bit),buffsize);
 }
 
 /*

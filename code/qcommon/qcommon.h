@@ -44,9 +44,9 @@ typedef struct {
 } msg_t;
 
 void MSGInit (msg_t *buf, byte *data, int length);
-void MSG_InitOOB( msg_t *buf, byte *data, int length );
+void MSGInitOOB( msg_t *buf, byte *data, int length );
 void MSG_Clear (msg_t *buf);
-void MSG_WriteData (msg_t *buf, const void *data, int length);
+void MSGWriteData (msg_t *buf, const void *data, int length);
 void MSGBitstream( msg_t *buf );
 
 // TTimo
@@ -62,9 +62,9 @@ struct playerState_s;
 void MSG_WriteBits( msg_t *msg, int value, int bits );
 
 void MSG_WriteChar (msg_t *sb, int c);
-void MSG_WriteByte (msg_t *sb, int c);
-void MSG_WriteShort (msg_t *sb, int c);
-void MSG_WriteLong (msg_t *sb, int c);
+void MSGWriteByte (msg_t *sb, int c);
+void MSGWriteShort (msg_t *sb, int c);
+void MSGWriteLong (msg_t *sb, int c);
 void MSG_WriteFloat (msg_t *sb, float f);
 void MSG_WriteString (msg_t *sb, const char *s);
 void MSG_WriteBigString (msg_t *sb, const char *s);
@@ -153,7 +153,7 @@ void NET_Shutdown( void );
 void NET_Restart( void );
 void NET_Config( qboolean enableNetworking );
 
-void		NET_SendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
+void		NETSendPacket (netsrc_t sock, int length, const void *data, netadr_t to);
 void		QDECL NET_OutOfBandPrint( netsrc_t net_socket, netadr_t adr, const char *format, ...);
 void		QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len );
 
@@ -205,7 +205,7 @@ typedef struct {
 void Netchan_Init( int qport );
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
 
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data );
+void NetchanTransmit( netchan_t *chan, int length, const byte *data );
 void Netchan_TransmitNextFragment( netchan_t *chan );
 
 qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
@@ -475,7 +475,7 @@ void 	CvarWriteVariables( fileHandle_t f );
 
 void	Cvar_Init( void );
 
-char	*Cvar_InfoString( int bit );
+char	*CvarInfoString( int bit );
 char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
@@ -977,7 +977,7 @@ void	Sys_StreamSeek( fileHandle_t f, int offset, int origin );
 void	Sys_ShowConsole( int level, qboolean quitOnClose );
 void	Sys_SetErrorText( const char *text );
 
-void	Sys_SendPacket( int length, const void *data, netadr_t to );
+void	SysSendPacket( int length, const void *data, netadr_t to );
 
 qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.

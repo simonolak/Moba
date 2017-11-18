@@ -250,7 +250,6 @@ void CL_ConfigstringModified( void ) {
 		// parse serverId and other cvars
 		CL_SystemInfoChanged();
 	}
-
 }
 
 

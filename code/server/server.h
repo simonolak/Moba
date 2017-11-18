@@ -203,11 +203,11 @@ typedef struct {
 	netadr_t	redirectAddress;			// for rcon return messages
 
 	netadr_t	authorizeAddress;			// for rcon return messages
-} serverStatic_t;
+} ServerStatic;
 
 //=============================================================================
 
-extern	serverStatic_t	svs;				// persistant server info across maps
+extern	ServerStatic	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
 extern	vm_t			*gvm;				// game virtual machine
 
@@ -246,7 +246,7 @@ extern	cvar_t	*sv_strictAuth;
 // sv_main.c
 //
 void SV_FinalMessage (char *message);
-void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...);
+void QDECL SVSendServerCommand( client_t *cl, const char *fmt, ...);
 
 
 void SV_AddOperatorCommands (void);
@@ -262,7 +262,7 @@ void SV_MasterShutdown (void);
 //
 // sv_init.c
 //
-void SV_SetConfigstring( int index, const char *val );
+void SVSetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 
 void SV_SetUserinfo( int index, const char *val );
@@ -305,15 +305,15 @@ void SV_AddServerCommand( client_t *client, const char *cmd );
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);
 void SV_SendMessageToClient( msg_t *msg, client_t *client );
-void SV_SendClientMessages( void );
-void SV_SendClientSnapshot( client_t *client );
+void SVSendClientMessages( void );
+void SVSendClientSnapshot( client_t *client );
 
 //
 // sv_game.c
 //
 int	SV_NumForGentity( sharedEntity_t *ent );
 sharedEntity_t *SV_GentityNum( int num );
-playerState_t *SV_GameClientNum( int num );
+playerState_t *SVGameClientNum( int num );
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
@@ -395,6 +395,6 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 // sv_net_chan.c
 //
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);
-void SV_Netchan_TransmitNextFragment( client_t *client );
+void SVNetchanTransmitNextFragment( client_t *client );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
 

@@ -77,20 +77,15 @@ void Cbuf_Init(void) {
 Adds command text at the end of the buffer, does NOT add a final \n
 ============
 */
-void CbufAddText( const char *text ) {
-	int		l;
-	
-	l = strlen (text);
-
-	if (cmd_text.cursize + l >= cmd_text.maxsize)
-	{
-		Com_Printf ("CbufAddText: overflow\n");
-		return;
-	}
-	Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
-	cmd_text.cursize += l;
+void CbufAddText(const char *text) {
+  int l = strlen(text);
+  if (cmd_text.cursize + l >= cmd_text.maxsize) {
+    Com_Printf("CbufAddText: overflow\n");
+    return;
+  }
+  Com_Memcpy(&cmd_text.data[cmd_text.cursize], text, l);
+  cmd_text.cursize += l;
 }
-
 
 /*
 ============

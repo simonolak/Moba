@@ -678,7 +678,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 	commenting out 
 	  CL_Netchan_Encode CL_Netchan_Decode (cl_net_chan.c)
 	  Netchan_ScramblePacket Netchan_UnScramblePacket (net_chan.c)
-	  SV_Netchan_Encode SV_Netchan_Decode (sv_net_chan.c)
+	  SVNetchanEncode SV_Netchan_Decode (sv_net_chan.c)
 
 2001-04-26  Timothee Besset <ttimo@idsoftware.com>
 
@@ -714,7 +714,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 	* code/game/q_shared.h (Q3_VERSION): 1.27j. Also
 	MAX_STRING_TOKENS upped from 256 to 1024 (SOS).
 
-	* code/server/sv_snapshot.c (SV_AddEntitiesVisibleFromPoint): see below.
+	* code/server/sv_snapshot.c (SVAddEntitiesVisibleFromPoint): see below.
 	* code/game/g_public.h (SVF_NOTSINGLECLIENT): added (SOS).
 
 	* code/server/sv_ccmds.c: see below.
@@ -1123,7 +1123,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 
 	* SOS: caught up with changes up until today. 
 
-	* code/server/sv_init.c (SV_SetConfigstring): gentity != NULL 
+	* code/server/sv_init.c (SVSetConfigstring): gentity != NULL 
 
 	* code/server/sv_client.c: connect to "{all bots" server.
 	* code/renderer/tr_init.c: JPEG extension on  screenshots

@@ -237,7 +237,7 @@ static void SV_MapRestart_f( void ) {
 	}
 	if( delay && !Cvar_VariableValue("g_doWarmup") ) {
 		sv.restartTime = svs.time + delay * 1000;
-		SV_SetConfigstring( CS_WARMUP, va("%i", sv.restartTime) );
+		SVSetConfigstring( CS_WARMUP, va("%i", sv.restartTime) );
 		return;
 	}
 
@@ -371,7 +371,7 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		SVSendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
 		return;
 	}
 
@@ -408,7 +408,7 @@ static void SV_Ban_f( void ) {
 	}
 
 	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		SVSendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
 		return;
 	}
 
@@ -462,7 +462,7 @@ static void SV_BanNum_f( void ) {
 		return;
 	}
 	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		SVSendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
 		return;
 	}
 
@@ -515,7 +515,7 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 	if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
-		SV_SendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
+		SVSendServerCommand(NULL, "print \"%s\"", "Cannot kick host player\n");
 		return;
 	}
 
@@ -550,7 +550,7 @@ static void SV_Status_f( void ) {
 		if (!cl->state)
 			continue;
 		Com_Printf ("%3i ", i);
-		ps = SV_GameClientNum( i );
+		ps = SVGameClientNum( i );
 		Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
 
 		if (cl->state == CS_CONNECTED)
@@ -617,7 +617,7 @@ static void SV_ConSay_f(void) {
 
 	strcat(text, p);
 
-	SV_SendServerCommand(NULL, "chat \"%s\n\"", text);
+	SVSendServerCommand(NULL, "chat \"%s\n\"", text);
 }
 
 
@@ -642,7 +642,7 @@ Examine the serverinfo string
 */
 static void SV_Serverinfo_f( void ) {
 	Com_Printf ("Server info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SERVERINFO ) );
+	Info_Print ( CvarInfoString( CVAR_SERVERINFO ) );
 }
 
 
@@ -655,7 +655,7 @@ Examine or change the serverinfo string
 */
 static void SV_Systeminfo_f( void ) {
 	Com_Printf ("System info settings:\n");
-	Info_Print ( Cvar_InfoString( CVAR_SYSTEMINFO ) );
+	Info_Print ( CvarInfoString( CVAR_SYSTEMINFO ) );
 }
 
 

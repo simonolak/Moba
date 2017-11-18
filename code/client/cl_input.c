@@ -708,20 +708,20 @@ void CL_WritePacket( void ) {
 	MSGBitstream( &buf );
 	// write the current serverId so the server
 	// can tell if this is from the current gameState
-	MSG_WriteLong( &buf, cl.serverId );
+	MSGWriteLong( &buf, cl.serverId );
 
 	// write the last message we received, which can
 	// be used for delta compression, and is also used
 	// to tell if we dropped a gamestate
-	MSG_WriteLong( &buf, clc.serverMessageSequence );
+	MSGWriteLong( &buf, clc.serverMessageSequence );
 
 	// write the last reliable message we received
-	MSG_WriteLong( &buf, clc.serverCommandSequence );
+	MSGWriteLong( &buf, clc.serverCommandSequence );
 
 	// write any unacknowledged clientCommands
 	for ( i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
-		MSG_WriteByte( &buf, clc_clientCommand );
-		MSG_WriteLong( &buf, i );
+		MSGWriteByte( &buf, clc_clientCommand );
+		MSGWriteLong( &buf, i );
 		MSG_WriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
 
@@ -747,13 +747,13 @@ void CL_WritePacket( void ) {
 		// begin a client move command
 		if ( cl_nodelta->integer || !cl.snap.valid || clc.demowaiting
 			|| clc.serverMessageSequence != cl.snap.messageNum ) {
-			MSG_WriteByte (&buf, clc_moveNoDelta);
+			MSGWriteByte (&buf, clc_moveNoDelta);
 		} else {
-			MSG_WriteByte (&buf, clc_move);
+			MSGWriteByte (&buf, clc_move);
 		}
 
 		// write the command count
-		MSG_WriteByte( &buf, count );
+		MSGWriteByte( &buf, count );
 
 		// use the checksum feed in the key
 		key = clc.checksumFeed;

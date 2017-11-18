@@ -53,7 +53,7 @@ sharedEntity_t *SV_GentityNum( int num ) {
 	return ent;
 }
 
-playerState_t *SV_GameClientNum( int num ) {
+playerState_t *SVGameClientNum( int num ) {
 	playerState_t	*ps;
 
 	ps = (playerState_t *)((byte *)sv.gameClients + sv.gameClientSize*(num));
@@ -84,12 +84,12 @@ Sends a command string to a client
 */
 void SV_GameSendServerCommand( int clientNum, const char *text ) {
 	if ( clientNum == -1 ) {
-		SV_SendServerCommand( NULL, "%s", text );
+		SVSendServerCommand( NULL, "%s", text );
 	} else {
 		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 			return;
 		}
-		SV_SendServerCommand( svs.clients + clientNum, "%s", text );	
+		SVSendServerCommand( svs.clients + clientNum, "%s", text );	
 	}
 }
 
@@ -252,7 +252,7 @@ void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetServerinfo: bufferSize == %i", bufferSize );
 	}
-	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
+	Q_strncpyz( buffer, CvarInfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
 /*
@@ -401,7 +401,7 @@ int SV_GameSystemCalls( int *args ) {
 		return SV_inPVSIgnorePortals( VMA(1), VMA(2) );
 
 	case G_SET_CONFIGSTRING:
-		SV_SetConfigstring( args[1], VMA(2) );
+		SVSetConfigstring( args[1], VMA(2) );
 		return 0;
 	case G_GET_CONFIGSTRING:
 		SV_GetConfigstring( args[1], VMA(2), args[3] );

@@ -309,67 +309,61 @@ static char socksBuf[4096];
 
 /*
 ==================
-Sys_SendPacket
+SysSendPacket
 ==================
 */
-void Sys_SendPacket( int length, const void *data, netadr_t to ) {
-	int				ret;
-	struct sockaddr	addr;
-	SOCKET			net_socket;
+void SysSendPacket(int length, const void *data, netadr_t to) {
+  int				ret;
+  struct sockaddr	addr;
+  SOCKET			net_socket;
 
-	if( to.type == NA_BROADCAST ) {
-		net_socket = ip_socket;
-	}
-	else if( to.type == NA_IP ) {
-		net_socket = ip_socket;
-	}
-	else if( to.type == NA_IPX ) {
-		net_socket = ipx_socket;
-	}
-	else if( to.type == NA_BROADCAST_IPX ) {
-		net_socket = ipx_socket;
-	}
-	else {
-		Com_Error( ERR_FATAL, "Sys_SendPacket: bad address type" );
-		return;
-	}
+  if (to.type == NA_BROADCAST) {
+    net_socket = ip_socket;
+  } else if (to.type == NA_IP) {
+    net_socket = ip_socket;
+  } else if (to.type == NA_IPX) {
+    net_socket = ipx_socket;
+  } else if (to.type == NA_BROADCAST_IPX) {
+    net_socket = ipx_socket;
+  } else {
+    Com_Error(ERR_FATAL, "SysSendPacket: bad address type");
+    return;
+  }
 
-	if( !net_socket ) {
-		return;
-	}
+  if (!net_socket) {
+    return;
+  }
 
-	NetadrToSockadr( &to, &addr );
+  NetadrToSockadr(&to, &addr);
 
-	if( usingSocks && to.type == NA_IP ) {
-		socksBuf[0] = 0;	// reserved
-		socksBuf[1] = 0;
-		socksBuf[2] = 0;	// fragment (not fragmented)
-		socksBuf[3] = 1;	// address type: IPV4
-		*(int *)&socksBuf[4] = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
-		*(short *)&socksBuf[8] = ((struct sockaddr_in *)&addr)->sin_port;
-		memcpy( &socksBuf[10], data, length );
-		ret = sendto( net_socket, socksBuf, length+10, 0, &socksRelayAddr, sizeof(socksRelayAddr) );
-	}
-	else {
-		ret = sendto( net_socket, data, length, 0, &addr, sizeof(addr) );
-	}
-	if( ret == SOCKET_ERROR ) {
-		int err = WSAGetLastError();
+  if (usingSocks && to.type == NA_IP) {
+    socksBuf[0] = 0;	// reserved
+    socksBuf[1] = 0;
+    socksBuf[2] = 0;	// fragment (not fragmented)
+    socksBuf[3] = 1;	// address type: IPV4
+    *(int *)&socksBuf[4] = ((struct sockaddr_in *)&addr)->sin_addr.s_addr;
+    *(short *)&socksBuf[8] = ((struct sockaddr_in *)&addr)->sin_port;
+    memcpy(&socksBuf[10], data, length);
+    ret = sendto(net_socket, socksBuf, length + 10, 0, &socksRelayAddr, sizeof(socksRelayAddr));
+  } else {
+    ret = sendto(net_socket, data, length, 0, &addr, sizeof(addr));
+  }
+  if (ret == SOCKET_ERROR) {
+    int err = WSAGetLastError();
 
-		// wouldblock is silent
-		if( err == WSAEWOULDBLOCK ) {
-			return;
-		}
+    // wouldblock is silent
+    if (err == WSAEWOULDBLOCK) {
+      return;
+    }
 
-		// some PPP links do not allow broadcasts and return an error
-		if( ( err == WSAEADDRNOTAVAIL ) && ( ( to.type == NA_BROADCAST ) || ( to.type == NA_BROADCAST_IPX ) ) ) {
-			return;
-		}
+    // some PPP links do not allow broadcasts and return an error
+    if ((err == WSAEADDRNOTAVAIL) && ((to.type == NA_BROADCAST) || (to.type == NA_BROADCAST_IPX))) {
+      return;
+    }
 
-		Com_Printf( "NET_SendPacket: %s\n", NET_ErrorString() );
-	}
+    Com_Printf("NETSendPacket: %s\n", NET_ErrorString());
+  }
 }
-
 
 //=============================================================================
 

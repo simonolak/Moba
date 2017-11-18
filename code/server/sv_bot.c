@@ -429,11 +429,11 @@ void BotClientCommand( int client, char *command ) {
 SVBotFrame
 ==================
 */
-void SVBotFrame( int time ) {
-	if (!bot_enable) return;
-	//NOTE: maybe the game is already shutdown
-	if (!gvm) return;
-	VM_Call( gvm, BOTAI_START_FRAME, time );
+void SVBotFrame(int time) {
+  if (!bot_enable) return;
+  //NOTE: maybe the game is already shutdown
+  if (!gvm) return;
+  VM_Call(gvm, BOTAI_START_FRAME, time);
 }
 
 /*

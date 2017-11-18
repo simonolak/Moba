@@ -50,7 +50,7 @@ void MSGInit(msg_t *buf, byte *data, int length) {
   buf->maxsize = length;
 }
 
-void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
+void MSGInitOOB( msg_t *buf, byte *data, int length ) {
 	if (!msgInit) {
 		MsgInitHuffman();
 	}
@@ -259,32 +259,32 @@ void MSG_WriteChar( msg_t *sb, int c ) {
 	MSG_WriteBits( sb, c, 8 );
 }
 
-void MSG_WriteByte( msg_t *sb, int c ) {
+void MSGWriteByte( msg_t *sb, int c ) {
 #ifdef PARANOID
 	if (c < 0 || c > 255)
-		Com_Error (ERR_FATAL, "MSG_WriteByte: range error");
+		Com_Error (ERR_FATAL, "MSGWriteByte: range error");
 #endif
 
 	MSG_WriteBits( sb, c, 8 );
 }
 
-void MSG_WriteData( msg_t *buf, const void *data, int length ) {
+void MSGWriteData( msg_t *buf, const void *data, int length ) {
 	int i;
 	for(i=0;i<length;i++) {
-		MSG_WriteByte(buf, ((byte *)data)[i]);
+		MSGWriteByte(buf, ((byte *)data)[i]);
 	}
 }
 
-void MSG_WriteShort( msg_t *sb, int c ) {
+void MSGWriteShort( msg_t *sb, int c ) {
 #ifdef PARANOID
 	if (c < ((short)0x8000) || c > (short)0x7fff)
-		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
+		Com_Error (ERR_FATAL, "MSGWriteShort: range error");
 #endif
 
 	MSG_WriteBits( sb, c, 16 );
 }
 
-void MSG_WriteLong( msg_t *sb, int c ) {
+void MSGWriteLong( msg_t *sb, int c ) {
 	MSG_WriteBits( sb, c, 32 );
 }
 
@@ -300,7 +300,7 @@ void MSG_WriteFloat( msg_t *sb, float f ) {
 
 void MSG_WriteString( msg_t *sb, const char *s ) {
 	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
+		MSGWriteData (sb, "", 1);
 	} else {
 		int		l,i;
 		char	string[MAX_STRING_CHARS];
@@ -308,7 +308,7 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 		l = strlen( s );
 		if ( l >= MAX_STRING_CHARS ) {
 			Com_Printf( "MSG_WriteString: MAX_STRING_CHARS" );
-			MSG_WriteData (sb, "", 1);
+			MSGWriteData (sb, "", 1);
 			return;
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
@@ -320,13 +320,13 @@ void MSG_WriteString( msg_t *sb, const char *s ) {
 			}
 		}
 
-		MSG_WriteData (sb, string, l+1);
+		MSGWriteData (sb, string, l+1);
 	}
 }
 
 void MSG_WriteBigString( msg_t *sb, const char *s ) {
 	if ( !s ) {
-		MSG_WriteData (sb, "", 1);
+		MSGWriteData (sb, "", 1);
 	} else {
 		int		l,i;
 		char	string[BIG_INFO_STRING];
@@ -334,7 +334,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 		l = strlen( s );
 		if ( l >= BIG_INFO_STRING ) {
 			Com_Printf( "MSG_WriteString: BIG_INFO_STRING" );
-			MSG_WriteData (sb, "", 1);
+			MSGWriteData (sb, "", 1);
 			return;
 		}
 		Q_strncpyz( string, s, sizeof( string ) );
@@ -346,16 +346,16 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 			}
 		}
 
-		MSG_WriteData (sb, string, l+1);
+		MSGWriteData (sb, string, l+1);
 	}
 }
 
 void MSG_WriteAngle( msg_t *sb, float f ) {
-	MSG_WriteByte (sb, (int)(f*256/360) & 255);
+	MSGWriteByte (sb, (int)(f*256/360) & 255);
 }
 
 void MSG_WriteAngle16( msg_t *sb, float f ) {
-	MSG_WriteShort (sb, ANGLE2SHORT(f));
+	MSGWriteShort (sb, ANGLE2SHORT(f));
 }
 
 
@@ -908,7 +908,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	MSG_WriteBits( msg, 0, 1 );			// not removed
 	MSG_WriteBits( msg, 1, 1 );			// we have a delta
 
-	MSG_WriteByte( msg, lc );	// # of changes
+	MSGWriteByte( msg, lc );	// # of changes
 
 	oldsize += numFields;
 
@@ -1183,7 +1183,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		}
 	}
 
-	MSG_WriteByte( msg, lc );	// # of changes
+	MSGWriteByte( msg, lc );	// # of changes
 
 	oldsize += numFields - lc;
 
@@ -1259,10 +1259,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if ( statsbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, statsbits );
+		MSGWriteShort( msg, statsbits );
 		for (i=0 ; i<16 ; i++)
 			if (statsbits & (1<<i) )
-				MSG_WriteShort (msg, to->stats[i]);
+				MSGWriteShort (msg, to->stats[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1270,10 +1270,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if ( persistantbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, persistantbits );
+		MSGWriteShort( msg, persistantbits );
 		for (i=0 ; i<16 ; i++)
 			if (persistantbits & (1<<i) )
-				MSG_WriteShort (msg, to->persistant[i]);
+				MSGWriteShort (msg, to->persistant[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1281,10 +1281,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if ( ammobits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, ammobits );
+		MSGWriteShort( msg, ammobits );
 		for (i=0 ; i<16 ; i++)
 			if (ammobits & (1<<i) )
-				MSG_WriteShort (msg, to->ammo[i]);
+				MSGWriteShort (msg, to->ammo[i]);
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
@@ -1292,10 +1292,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 
 	if ( powerupbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, powerupbits );
+		MSGWriteShort( msg, powerupbits );
 		for (i=0 ; i<16 ; i++)
 			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
+				MSGWriteLong( msg, to->powerups[i] );
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}

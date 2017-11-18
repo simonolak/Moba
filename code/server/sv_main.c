@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "server.h"
 
-serverStatic_t	svs;				// persistant server info
+ServerStatic svs;				// persistant server info
 server_t		sv;					// local server
 vm_t			*gvm = NULL;				// game virtual machine // bk001212 init
 
@@ -155,14 +155,13 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 
 /*
 =================
-SV_SendServerCommand
-
+SVSendServerCommand
 Sends a reliable command string to be interpreted by 
 the client game module: "cp", "print", "chat", etc
 A NULL client will broadcast to all clients
 =================
 */
-void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
+void QDECL SVSendServerCommand(client_t *cl, const char *fmt, ...) {
 	va_list		argptr;
 	byte		message[MAX_MSGLEN];
 	client_t	*client;
@@ -319,7 +318,7 @@ void SVC_Status( netadr_t from ) {
 		return;
 	}
 
-	strcpy( infostring, Cvar_InfoString( CVAR_SERVERINFO ) );
+	strcpy( infostring, CvarInfoString( CVAR_SERVERINFO ) );
 
 	// echo back the parameter to status. so master servers can use it as a challenge
 	// to prevent timed spoofed reply packets that add ghost servers
@@ -340,7 +339,7 @@ void SVC_Status( netadr_t from ) {
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
-			ps = SV_GameClientNum( i );
+			ps = SVGameClientNum( i );
 			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n", 
 				ps->persistant[PERS_SCORE], cl->ping, cl->name);
 			playerLength = strlen(player);
@@ -605,61 +604,60 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 
 /*
 ===================
-SV_CalcPings
-
+SVCalcPings
 Updates the cl->ping variables
 ===================
 */
-void SV_CalcPings( void ) {
-	int			i, j;
-	client_t	*cl;
-	int			total, count;
-	int			delta;
-	playerState_t	*ps;
+void SVCalcPings(void) {
+  int			i, j;
+  client_t	*cl;
+  int			total, count;
+  int			delta;
+  playerState_t	*ps;
 
-	for (i=0 ; i < sv_maxclients->integer ; i++) {
-		cl = &svs.clients[i];
-		if ( cl->state != CS_ACTIVE ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( !cl->gentity ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( cl->gentity->r.svFlags & SVF_BOT ) {
-			cl->ping = 0;
-			continue;
-		}
+  for (i = 0; i < sv_maxclients->integer; i++) {
+    cl = &svs.clients[i];
+    if (cl->state != CS_ACTIVE) {
+      cl->ping = 999;
+      continue;
+    }
+    if (!cl->gentity) {
+      cl->ping = 999;
+      continue;
+    }
+    if (cl->gentity->r.svFlags & SVF_BOT) {
+      cl->ping = 0;
+      continue;
+    }
 
-		total = 0;
-		count = 0;
-		for ( j = 0 ; j < PACKET_BACKUP ; j++ ) {
-			if ( cl->frames[j].messageAcked <= 0 ) {
-				continue;
-			}
-			delta = cl->frames[j].messageAcked - cl->frames[j].messageSent;
-			count++;
-			total += delta;
-		}
-		if (!count) {
-			cl->ping = 999;
-		} else {
-			cl->ping = total/count;
-			if ( cl->ping > 999 ) {
-				cl->ping = 999;
-			}
-		}
+    total = 0;
+    count = 0;
+    for (j = 0; j < PACKET_BACKUP; j++) {
+      if (cl->frames[j].messageAcked <= 0) {
+        continue;
+      }
+      delta = cl->frames[j].messageAcked - cl->frames[j].messageSent;
+      count++;
+      total += delta;
+    }
+    if (!count) {
+      cl->ping = 999;
+    } else {
+      cl->ping = total / count;
+      if (cl->ping > 999) {
+        cl->ping = 999;
+      }
+    }
 
-		// let the game dll know about the ping
-		ps = SV_GameClientNum( i );
-		ps->ping = cl->ping;
-	}
+    // let the game dll know about the ping
+    ps = SVGameClientNum(i);
+    ps->ping = cl->ping;
+  }
 }
 
 /*
 ==================
-SV_CheckTimeouts
+SVCheckTimeouts
 
 If a packet has not been received from a client for timeout->integer 
 seconds, drop the conneciton.  Server time is used instead of
@@ -670,7 +668,7 @@ for a few seconds to make sure any final reliable message gets resent
 if necessary
 ==================
 */
-void SV_CheckTimeouts( void ) {
+void SVCheckTimeouts( void ) {
 	int		i;
 	client_t	*cl;
 	int			droppoint;
@@ -810,11 +808,11 @@ void SVFrame(int msec) {
 
   // update infostrings if anything has been changed
   if (cvar_modifiedFlags & CVAR_SERVERINFO) {
-    SV_SetConfigstring(CS_SERVERINFO, Cvar_InfoString(CVAR_SERVERINFO));
+    SVSetConfigstring(CS_SERVERINFO, CvarInfoString(CVAR_SERVERINFO));
     cvar_modifiedFlags &= ~CVAR_SERVERINFO;
   }
   if (cvar_modifiedFlags & CVAR_SYSTEMINFO) {
-    SV_SetConfigstring(CS_SYSTEMINFO, Cvar_InfoString_Big(CVAR_SYSTEMINFO));
+    SVSetConfigstring(CS_SYSTEMINFO, Cvar_InfoString_Big(CVAR_SYSTEMINFO));
     cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
   }
 
@@ -825,7 +823,7 @@ void SVFrame(int msec) {
   }
 
   // update ping based on the all received frames
-  SV_CalcPings();
+  SVCalcPings();
 
   if (com_dedicated->integer) {
     SVBotFrame(svs.time);
@@ -845,10 +843,10 @@ void SVFrame(int msec) {
   }
 
   // check timeouts
-  SV_CheckTimeouts();
+  SVCheckTimeouts();
 
   // send messages back to the clients
-  SV_SendClientMessages();
+  SVSendClientMessages();
 
   // send a heartbeat to the master if needed
   SV_MasterHeartbeat();

@@ -326,10 +326,10 @@ void CL_Record_f( void ) {
   MSGBitstream(&buf);
 
   // NOTE, MRE: all server->client messages now acknowledge
-  MSG_WriteLong( &buf, clc.reliableSequence );
+  MSGWriteLong( &buf, clc.reliableSequence );
 
-  MSG_WriteByte (&buf, svc_gamestate);
-  MSG_WriteLong (&buf, clc.serverCommandSequence );
+  MSGWriteByte (&buf, svc_gamestate);
+  MSGWriteLong (&buf, clc.serverCommandSequence );
 
   // configstrings
   for ( i = 0 ; i < MAX_CONFIGSTRINGS ; i++ ) {
@@ -337,8 +337,8 @@ void CL_Record_f( void ) {
       continue;
     }
     s = cl.gameState.stringData + cl.gameState.stringOffsets[i];
-    MSG_WriteByte (&buf, svc_configstring);
-    MSG_WriteShort (&buf, i);
+    MSGWriteByte (&buf, svc_configstring);
+    MSGWriteShort (&buf, i);
     MSG_WriteBigString (&buf, s);
   }
 
@@ -349,21 +349,21 @@ void CL_Record_f( void ) {
     if ( !ent->number ) {
       continue;
     }
-    MSG_WriteByte (&buf, svc_baseline);		
+    MSGWriteByte (&buf, svc_baseline);		
     MSG_WriteDeltaEntity (&buf, &nullstate, ent, qtrue );
   }
 
-  MSG_WriteByte( &buf, svc_EOF );
+  MSGWriteByte( &buf, svc_EOF );
 
   // finished writing the gamestate stuff
 
   // write the client num
-  MSG_WriteLong(&buf, clc.clientNum);
+  MSGWriteLong(&buf, clc.clientNum);
   // write the checksum feed
-  MSG_WriteLong(&buf, clc.checksumFeed);
+  MSGWriteLong(&buf, clc.checksumFeed);
 
   // finished writing the client packet
-  MSG_WriteByte( &buf, svc_EOF );
+  MSGWriteByte( &buf, svc_EOF );
 
   // write it to the demo file
   len = LittleLong( clc.serverMessageSequence - 1 );
@@ -1129,7 +1129,7 @@ void CL_Rcon_f( void ) {
     }
   }
 
-  NET_SendPacket (NS_CLIENT, strlen(message)+1, message, to);
+  NETSendPacket (NS_CLIENT, strlen(message)+1, message, to);
 }
 
 /*
@@ -1293,7 +1293,7 @@ void CL_Clientinfo_f( void ) {
   Com_Printf( "state: %i\n", cls.state );
   Com_Printf( "Server: %s\n", cls.servername );
   Com_Printf ("User info settings:\n");
-  Info_Print( Cvar_InfoString( CVAR_USERINFO ) );
+  Info_Print( CvarInfoString( CVAR_USERINFO ) );
   Com_Printf( "--------------------------------------\n" );
 }
 
@@ -1516,7 +1516,7 @@ void CL_CheckForResend( void ) {
     // sending back the challenge
     port = Cvar_VariableValue ("net_qport");
 
-    Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
+    Q_strncpyz( info, CvarInfoString( CVAR_USERINFO ), sizeof( info ) );
     Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
     Info_SetValueForKey( info, "qport", va("%i", port ) );
     Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
@@ -1971,7 +1971,7 @@ void CL_CheckUserinfo( void ) {
   // send a reliable userinfo update if needed
   if ( cvar_modifiedFlags & CVAR_USERINFO ) {
     cvar_modifiedFlags &= ~CVAR_USERINFO;
-    CL_AddReliableCommand( va("userinfo \"%s\"", Cvar_InfoString( CVAR_USERINFO ) ) );
+    CL_AddReliableCommand( va("userinfo \"%s\"", CvarInfoString( CVAR_USERINFO ) ) );
   }
 
 }
@@ -2818,10 +2818,10 @@ void CL_LocalServers_f( void ) {
       to.port = BigShort( (short)(PORT_SERVER + j) );
 
       to.type = NA_BROADCAST;
-      NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+      NETSendPacket( NS_CLIENT, strlen( message ), message, to );
 
       to.type = NA_BROADCAST_IPX;
-      NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
+      NETSendPacket( NS_CLIENT, strlen( message ), message, to );
     }
   }
 }

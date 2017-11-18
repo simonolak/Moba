@@ -24,79 +24,74 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ===============
-SV_SetConfigstring
-
+SVSetConfigstring
 ===============
 */
-void SV_SetConfigstring (int index, const char *val) {
-	int		len, i;
-	int		maxChunkSize = MAX_STRING_CHARS - 24;
-	client_t	*client;
+void SVSetConfigstring(int index, const char *val) {
+  int		len, i;
+  int		maxChunkSize = MAX_STRING_CHARS - 24;
+  client_t	*client;
 
-	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
-		Com_Error (ERR_DROP, "SV_SetConfigstring: bad index %i\n", index);
-	}
+  if (index < 0 || index >= MAX_CONFIGSTRINGS) {
+    Com_Error(ERR_DROP, "SVSetConfigstring: bad index %i\n", index);
+  }
 
-	if ( !val ) {
-		val = "";
-	}
+  if (!val) {
+    val = "";
+  }
 
-	// don't bother broadcasting an update if no change
-	if ( !strcmp( val, sv.configstrings[ index ] ) ) {
-		return;
-	}
+  // don't bother broadcasting an update if no change
+  if (!strcmp(val, sv.configstrings[index])) {
+    return;
+  }
 
-	// change the string in sv
-	Z_Free( sv.configstrings[index] );
-	sv.configstrings[index] = CopyString( val );
+  // change the string in sv
+  Z_Free(sv.configstrings[index]);
+  sv.configstrings[index] = CopyString(val);
 
-	// send it to all the clients if we aren't
-	// spawning a new server
-	if ( sv.state == SS_GAME || sv.restarting ) {
+  // send it to all the clients if we aren't
+  // spawning a new server
+  if (sv.state == SS_GAME || sv.restarting) {
 
-		// send the data to all relevent clients
-		for (i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++) {
-			if ( client->state < CS_PRIMED ) {
-				continue;
-			}
-			// do not always send server info to all clients
-			if ( index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO) ) {
-				continue;
-			}
+    // send the data to all relevent clients
+    for (i = 0, client = svs.clients; i < sv_maxclients->integer; i++, client++) {
+      if (client->state < CS_PRIMED) {
+        continue;
+      }
+      // do not always send server info to all clients
+      if (index == CS_SERVERINFO && client->gentity && (client->gentity->r.svFlags & SVF_NOSERVERINFO)) {
+        continue;
+      }
 
-			len = strlen( val );
-			if( len >= maxChunkSize ) {
-				int		sent = 0;
-				int		remaining = len;
-				char	*cmd;
-				char	buf[MAX_STRING_CHARS];
+      len = strlen(val);
+      if (len >= maxChunkSize) {
+        int		sent = 0;
+        int		remaining = len;
+        char	*cmd;
+        char	buf[MAX_STRING_CHARS];
 
-				while (remaining > 0 ) {
-					if ( sent == 0 ) {
-						cmd = "bcs0";
-					}
-					else if( remaining < maxChunkSize ) {
-						cmd = "bcs2";
-					}
-					else {
-						cmd = "bcs1";
-					}
-					Q_strncpyz( buf, &val[sent], maxChunkSize );
+        while (remaining > 0) {
+          if (sent == 0) {
+            cmd = "bcs0";
+          } else if (remaining < maxChunkSize) {
+            cmd = "bcs2";
+          } else {
+            cmd = "bcs1";
+          }
+          Q_strncpyz(buf, &val[sent], maxChunkSize);
 
-					SV_SendServerCommand( client, "%s %i \"%s\"\n", cmd, index, buf );
+          SVSendServerCommand(client, "%s %i \"%s\"\n", cmd, index, buf);
 
-					sent += (maxChunkSize - 1);
-					remaining -= (maxChunkSize - 1);
-				}
-			} else {
-				// standard cs, just send it
-				SV_SendServerCommand( client, "cs %i \"%s\"\n", index, val );
-			}
-		}
-	}
+          sent += (maxChunkSize - 1);
+          remaining -= (maxChunkSize - 1);
+        }
+      } else {
+        // standard cs, just send it
+        SVSendServerCommand(client, "cs %i \"%s\"\n", index, val);
+      }
+    }
+  }
 }
-
-
 
 /*
 ===============
@@ -530,9 +525,9 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 	// save systeminfo and serverinfo strings
 	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
 	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
-	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
+	SVSetConfigstring( CS_SYSTEMINFO, systemInfo );
 
-	SV_SetConfigstring( CS_SERVERINFO, Cvar_InfoString( CVAR_SERVERINFO ) );
+	SVSetConfigstring( CS_SERVERINFO, CvarInfoString( CVAR_SERVERINFO ) );
 	cvar_modifiedFlags &= ~CVAR_SERVERINFO;
 
 	// any media configstring setting now should issue a warning
@@ -638,12 +633,12 @@ void SV_FinalMessage( char *message ) {
 			if (cl->state >= CS_CONNECTED) {
 				// don't send a disconnect to a local client
 				if ( cl->netchan.remoteAddress.type != NA_LOOPBACK ) {
-					SV_SendServerCommand( cl, "print \"%s\"", message );
-					SV_SendServerCommand( cl, "disconnect" );
+					SVSendServerCommand( cl, "print \"%s\"", message );
+					SVSendServerCommand( cl, "disconnect" );
 				}
 				// force a snapshot to be sent
 				cl->nextSnapshotTime = -1;
-				SV_SendClientSnapshot( cl );
+				SVSendClientSnapshot( cl );
 			}
 		}
 	}

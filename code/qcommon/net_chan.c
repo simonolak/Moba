@@ -181,111 +181,108 @@ static void Netchan_UnScramblePacket( msg_t *buf ) {
 /*
 =================
 Netchan_TransmitNextFragment
-
 Send one fragment of the current message
 =================
 */
-void Netchan_TransmitNextFragment( netchan_t *chan ) {
-	msg_t		send;
-	byte		send_buf[MAX_PACKETLEN];
-	int			fragmentLength;
+void Netchan_TransmitNextFragment(netchan_t *chan) {
+  msg_t		send;
+  byte		send_buf[MAX_PACKETLEN];
+  int			fragmentLength;
 
-	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
+  // write the packet header
+  MSGInitOOB(&send, send_buf, sizeof(send_buf));				// <-- only do the oob here
 
-	MSG_WriteLong( &send, chan->outgoingSequence | FRAGMENT_BIT );
+  MSGWriteLong(&send, chan->outgoingSequence | FRAGMENT_BIT);
 
-	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
-	}
+  // send the qport if we are a client
+  if (chan->sock == NS_CLIENT) {
+    MSGWriteShort(&send, qport->integer);
+  }
 
-	// copy the reliable message to the packet first
-	fragmentLength = FRAGMENT_SIZE;
-	if ( chan->unsentFragmentStart  + fragmentLength > chan->unsentLength ) {
-		fragmentLength = chan->unsentLength - chan->unsentFragmentStart;
-	}
+  // copy the reliable message to the packet first
+  fragmentLength = FRAGMENT_SIZE;
+  if (chan->unsentFragmentStart + fragmentLength > chan->unsentLength) {
+    fragmentLength = chan->unsentLength - chan->unsentFragmentStart;
+  }
 
-	MSG_WriteShort( &send, chan->unsentFragmentStart );
-	MSG_WriteShort( &send, fragmentLength );
-	MSG_WriteData( &send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength );
+  MSGWriteShort(&send, chan->unsentFragmentStart);
+  MSGWriteShort(&send, fragmentLength);
+  MSGWriteData(&send, chan->unsentBuffer + chan->unsentFragmentStart, fragmentLength);
 
-	// send the datagram
-	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+  // send the datagram
+  NETSendPacket(chan->sock, send.cursize, send.data, chan->remoteAddress);
 
-	if ( showpackets->integer ) {
-		Com_Printf ("%s send %4i : s=%i fragment=%i,%i\n"
-			, netsrcString[ chan->sock ]
-			, send.cursize
-			, chan->outgoingSequence
-			, chan->unsentFragmentStart, fragmentLength);
-	}
+  if (showpackets->integer) {
+    Com_Printf("%s send %4i : s=%i fragment=%i,%i\n"
+      , netsrcString[chan->sock]
+      , send.cursize
+      , chan->outgoingSequence
+      , chan->unsentFragmentStart, fragmentLength);
+  }
 
-	chan->unsentFragmentStart += fragmentLength;
+  chan->unsentFragmentStart += fragmentLength;
 
-	// this exit condition is a little tricky, because a packet
-	// that is exactly the fragment length still needs to send
-	// a second packet of zero length so that the other side
-	// can tell there aren't more to follow
-	if ( chan->unsentFragmentStart == chan->unsentLength && fragmentLength != FRAGMENT_SIZE ) {
-		chan->outgoingSequence++;
-		chan->unsentFragments = qfalse;
-	}
+  // this exit condition is a little tricky, because a packet
+  // that is exactly the fragment length still needs to send
+  // a second packet of zero length so that the other side
+  // can tell there aren't more to follow
+  if (chan->unsentFragmentStart == chan->unsentLength && fragmentLength != FRAGMENT_SIZE) {
+    chan->outgoingSequence++;
+    chan->unsentFragments = qfalse;
+  }
 }
-
 
 /*
 ===============
-Netchan_Transmit
-
+NetchanTransmit
 Sends a message to a connection, fragmenting if necessary
 A 0 length will still generate a packet.
 ================
 */
-void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
-	msg_t		send;
-	byte		send_buf[MAX_PACKETLEN];
+void NetchanTransmit(netchan_t *chan, int length, const byte *data) {
+  msg_t		send;
+  byte		send_buf[MAX_PACKETLEN];
 
-	if ( length > MAX_MSGLEN ) {
-		Com_Error( ERR_DROP, "Netchan_Transmit: length = %i", length );
-	}
-	chan->unsentFragmentStart = 0;
+  if (length > MAX_MSGLEN) {
+    Com_Error(ERR_DROP, "NetchanTransmit: length = %i", length);
+  }
+  chan->unsentFragmentStart = 0;
 
-	// fragment large reliable messages
-	if ( length >= FRAGMENT_SIZE ) {
-		chan->unsentFragments = qtrue;
-		chan->unsentLength = length;
-		Com_Memcpy( chan->unsentBuffer, data, length );
+  // fragment large reliable messages
+  if (length >= FRAGMENT_SIZE) {
+    chan->unsentFragments = qtrue;
+    chan->unsentLength = length;
+    Com_Memcpy(chan->unsentBuffer, data, length);
 
-		// only send the first fragment now
-		Netchan_TransmitNextFragment( chan );
+    // only send the first fragment now
+    Netchan_TransmitNextFragment(chan);
 
-		return;
-	}
+    return;
+  }
 
-	// write the packet header
-	MSG_InitOOB (&send, send_buf, sizeof(send_buf));
+  // write the packet header
+  MSGInitOOB(&send, send_buf, sizeof(send_buf));
 
-	MSG_WriteLong( &send, chan->outgoingSequence );
-	chan->outgoingSequence++;
+  MSGWriteLong(&send, chan->outgoingSequence);
+  chan->outgoingSequence++;
 
-	// send the qport if we are a client
-	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
-	}
+  // send the qport if we are a client
+  if (chan->sock == NS_CLIENT) {
+    MSGWriteShort(&send, qport->integer);
+  }
 
-	MSG_WriteData( &send, data, length );
+  MSGWriteData(&send, data, length);
 
-	// send the datagram
-	NET_SendPacket( chan->sock, send.cursize, send.data, chan->remoteAddress );
+  // send the datagram
+  NETSendPacket(chan->sock, send.cursize, send.data, chan->remoteAddress);
 
-	if ( showpackets->integer ) {
-		Com_Printf( "%s send %4i : s=%i ack=%i\n"
-			, netsrcString[ chan->sock ]
-			, send.cursize
-			, chan->outgoingSequence - 1
-			, chan->incomingSequence );
-	}
+  if (showpackets->integer) {
+    Com_Printf("%s send %4i : s=%i ack=%i\n"
+      , netsrcString[chan->sock]
+      , send.cursize
+      , chan->outgoingSequence - 1
+      , chan->incomingSequence);
+  }
 }
 
 /*
@@ -594,42 +591,38 @@ qboolean NETGetLoopPacket(netsrc_t sock, netadr_t *net_from, msg_t *net_message)
   return qtrue;
 }
 
-void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
-{
-	int		i;
-	loopback_t	*loop;
+void NETSendLoopPacket(netsrc_t sock, int length, const void *data, netadr_t to) {
+  int		i;
+  loopback_t	*loop;
 
-	loop = &loopbacks[sock^1];
+  loop = &loopbacks[sock ^ 1];
 
-	i = loop->send & (MAX_LOOPBACK-1);
-	loop->send++;
+  i = loop->send & (MAX_LOOPBACK - 1);
+  loop->send++;
 
-	Com_Memcpy (loop->msgs[i].data, data, length);
-	loop->msgs[i].datalen = length;
+  Com_Memcpy(loop->msgs[i].data, data, length);
+  loop->msgs[i].datalen = length;
 }
 
 //=============================================================================
+void NETSendPacket(netsrc_t sock, int length, const void *data, netadr_t to) {
+  // sequenced packets are shown in netchan, so just show oob
+  if (showpackets->integer && *(int *)data == -1) {
+    Com_Printf("send packet %4i\n", length);
+  }
 
+  if (to.type == NA_LOOPBACK) {
+    NETSendLoopPacket(sock, length, data, to);
+    return;
+  }
+  if (to.type == NA_BOT) {
+    return;
+  }
+  if (to.type == NA_BAD) {
+    return;
+  }
 
-void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
-
-	// sequenced packets are shown in netchan, so just show oob
-	if ( showpackets->integer && *(int *)data == -1 )	{
-		Com_Printf ("send packet %4i\n", length);
-	}
-
-	if ( to.type == NA_LOOPBACK ) {
-		NET_SendLoopPacket (sock, length, data, to);
-		return;
-	}
-	if ( to.type == NA_BOT ) {
-		return;
-	}
-	if ( to.type == NA_BAD ) {
-		return;
-	}
-
-	Sys_SendPacket( length, data, to );
+  SysSendPacket(length, data, to);
 }
 
 /*
@@ -655,7 +648,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 	va_end( argptr );
 
 	// send the datagram
-	NET_SendPacket( sock, strlen( string ), string, adr );
+	NETSendPacket( sock, strlen( string ), string, adr );
 }
 
 /*
@@ -684,7 +677,7 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 	mbuf.cursize = len+4;
 	Huff_Compress( &mbuf, 12);
 	// send the datagram
-	NET_SendPacket( sock, mbuf.cursize, mbuf.data, adr );
+	NETSendPacket( sock, mbuf.cursize, mbuf.data, adr );
 }
 
 /*

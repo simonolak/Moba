@@ -494,7 +494,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	SV_CloseDownload( drop );
 
 	// tell everyone why they got dropped
-	SV_SendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
+	SVSendServerCommand( NULL, "print \"%s" S_COLOR_WHITE " %s\n\"", drop->name, reason );
 
 	Com_DPrintf( "Going to CS_ZOMBIE for %s\n", drop->name );
 	drop->state = CS_ZOMBIE;		// become free in a few seconds
@@ -509,7 +509,7 @@ void SV_DropClient( client_t *drop, const char *reason ) {
 	VM_Call( gvm, GAME_CLIENT_DISCONNECT, drop - svs.clients );
 
 	// add the disconnect command
-	SV_SendServerCommand( drop, "disconnect \"%s\"", reason);
+	SVSendServerCommand( drop, "disconnect \"%s\"", reason);
 
 	if ( drop->netchan.remoteAddress.type == NA_BOT ) {
 		SV_BotFreeClient( drop - svs.clients );
@@ -564,7 +564,7 @@ void SV_SendClientGameState( client_t *client ) {
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
-	MSG_WriteLong( &msg, client->lastClientCommand );
+	MSGWriteLong( &msg, client->lastClientCommand );
 
 	// send any server commands waiting to be sent first.
 	// we have to do this cause we send the client->reliableSequence
@@ -573,14 +573,14 @@ void SV_SendClientGameState( client_t *client ) {
 	SV_UpdateServerCommandsToClient( client, &msg );
 
 	// send the gamestate
-	MSG_WriteByte( &msg, svc_gamestate );
-	MSG_WriteLong( &msg, client->reliableSequence );
+	MSGWriteByte( &msg, svc_gamestate );
+	MSGWriteLong( &msg, client->reliableSequence );
 
 	// write the configstrings
 	for ( start = 0 ; start < MAX_CONFIGSTRINGS ; start++ ) {
 		if (sv.configstrings[start][0]) {
-			MSG_WriteByte( &msg, svc_configstring );
-			MSG_WriteShort( &msg, start );
+			MSGWriteByte( &msg, svc_configstring );
+			MSGWriteShort( &msg, start );
 			MSG_WriteBigString( &msg, sv.configstrings[start] );
 		}
 	}
@@ -592,16 +592,16 @@ void SV_SendClientGameState( client_t *client ) {
 		if ( !base->number ) {
 			continue;
 		}
-		MSG_WriteByte( &msg, svc_baseline );
+		MSGWriteByte( &msg, svc_baseline );
 		MSG_WriteDeltaEntity( &msg, &nullstate, base, qtrue );
 	}
 
-	MSG_WriteByte( &msg, svc_EOF );
+	MSGWriteByte( &msg, svc_EOF );
 
-	MSG_WriteLong( &msg, client - svs.clients);
+	MSGWriteLong( &msg, client - svs.clients);
 
 	// write the checksum feed
-	MSG_WriteLong( &msg, sv.checksumFeed);
+	MSGWriteLong( &msg, sv.checksumFeed);
 
 	// deliver this to the client
 	SV_SendMessageToClient( &msg, client );
@@ -800,9 +800,9 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName);
 				Com_sprintf(errorMessage, sizeof(errorMessage), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName);
 			}
-			MSG_WriteByte( msg, svc_download );
-			MSG_WriteShort( msg, 0 ); // client is expecting block zero
-			MSG_WriteLong( msg, -1 ); // illegal file size
+			MSGWriteByte( msg, svc_download );
+			MSGWriteShort( msg, 0 ); // client is expecting block zero
+			MSGWriteLong( msg, -1 ); // illegal file size
 			MSG_WriteString( msg, errorMessage );
 
 			*cl->downloadName = 0;
@@ -896,18 +896,18 @@ void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
 		// Send current block
 		curindex = (cl->downloadXmitBlock % MAX_DOWNLOAD_WINDOW);
 
-		MSG_WriteByte( msg, svc_download );
-		MSG_WriteShort( msg, cl->downloadXmitBlock );
+		MSGWriteByte( msg, svc_download );
+		MSGWriteShort( msg, cl->downloadXmitBlock );
 
 		// block zero is special, contains file size
 		if ( cl->downloadXmitBlock == 0 )
-			MSG_WriteLong( msg, cl->downloadSize );
+			MSGWriteLong( msg, cl->downloadSize );
  
-		MSG_WriteShort( msg, cl->downloadBlockSize[curindex] );
+		MSGWriteShort( msg, cl->downloadBlockSize[curindex] );
 
 		// Write the block
 		if ( cl->downloadBlockSize[curindex] ) {
-			MSG_WriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
+			MSGWriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
 		}
 
 		Com_DPrintf( "clientDownload: %d : writing block %d\n", cl - svs.clients, cl->downloadXmitBlock );
@@ -1088,7 +1088,7 @@ static void SV_VerifyPaks_f( client_t *cl ) {
 			cl->pureAuthentic = 0;
 			cl->nextSnapshotTime = -1;
 			cl->state = CS_ACTIVE;
-			SV_SendClientSnapshot( cl );
+			SVSendClientSnapshot( cl );
 			SV_DropClient( cl, "Unpure client detected. Invalid .PK3 files referenced!" );
 		}
 	}
