@@ -306,7 +306,7 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
   // calculate the visible areas
   frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
 
-  clientpvs = CM_ClusterPVS(clientcluster);
+  clientpvs = CMClusterPVS(clientcluster);
 
   c_fullsend = 0;
 

@@ -299,25 +299,17 @@ int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_
 	return CM_PointContents( p_l, model );
 }
 
-
-
 /*
 ===============================================================================
-
 PVS
-
 ===============================================================================
 */
-
-byte	*CM_ClusterPVS (int cluster) {
-	if (cluster < 0 || cluster >= cm.numClusters || !cm.vised ) {
-		return cm.visibility;
-	}
-
-	return cm.visibility + cluster * cm.clusterBytes;
+byte *CMClusterPVS(int cluster) {
+  if (cluster < 0 || cluster >= cm.numClusters || !cm.vised) {
+    return cm.visibility;
+  }
+  return cm.visibility + cluster * cm.clusterBytes;
 }
-
-
 
 /*
 ===============================================================================
