@@ -299,7 +299,7 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
     return;
   }
 
-  leafnum = CM_PointLeafnum(origin);
+  leafnum = CMPointLeafnum(origin);
   clientarea = CM_LeafArea(leafnum);
   clientcluster = CM_LeafCluster(leafnum);
 
@@ -416,7 +416,6 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
       }
       SVAddEntitiesVisibleFromPoint(ent->s.origin2, frame, eNums, qtrue);
     }
-
   }
 }
 

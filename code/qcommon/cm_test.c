@@ -53,13 +53,12 @@ int CM_PointLeafnum_r( const vec3_t p, int num ) {
 	return -1 - num;
 }
 
-int CM_PointLeafnum( const vec3_t p ) {
-	if ( !cm.numNodes ) {	// map not loaded
-		return 0;
-	}
-	return CM_PointLeafnum_r (p, 0);
+int CMPointLeafnum(const vec3_t p) {
+  if (!cm.numNodes) {	// map not loaded
+    return 0;
+  }
+  return CM_PointLeafnum_r(p, 0);
 }
-
 
 /*
 ======================================================================
