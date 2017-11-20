@@ -55,13 +55,13 @@ int			CMPointLeafnum( const vec3_t p );
 int			CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *list,
 		 					int listsize, int *lastLeaf );
 
-int			CM_LeafCluster (int leafnum);
-int			CM_LeafArea (int leafnum);
+int			CMLeafCluster (int leafnum);
+int			CMLeafArea (int leafnum);
 
 void		CM_AdjustAreaPortalState( int area1, int area2, qboolean open );
 qboolean	CM_AreasConnected( int area1, int area2 );
 
-int			CM_WriteAreaBits( byte *buffer, int area );
+int			CMWriteAreaBits( byte *buffer, int area );
 
 // cm_tag.c
 int			CM_LerpTag( orientation_t *tag,  clipHandle_t model, int startFrame, int endFrame, 

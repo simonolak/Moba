@@ -716,16 +716,16 @@ char	*CM_EntityString( void ) {
 	return cm.entityString;
 }
 
-int		CM_LeafCluster( int leafnum ) {
+int		CMLeafCluster( int leafnum ) {
 	if (leafnum < 0 || leafnum >= cm.numLeafs) {
-		Com_Error (ERR_DROP, "CM_LeafCluster: bad number");
+		Com_Error (ERR_DROP, "CMLeafCluster: bad number");
 	}
 	return cm.leafs[leafnum].cluster;
 }
 
-int CM_LeafArea(int leafnum) {
+int CMLeafArea(int leafnum) {
   if (leafnum < 0 || leafnum >= cm.numLeafs) {
-    Com_Error(ERR_DROP, "CM_LeafArea: bad number");
+    Com_Error(ERR_DROP, "CMLeafArea: bad number");
   }
   return cm.leafs[leafnum].area;
 }

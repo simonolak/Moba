@@ -45,12 +45,10 @@ int	SV_NumForGentity( sharedEntity_t *ent ) {
 	return num;
 }
 
-sharedEntity_t *SV_GentityNum( int num ) {
-	sharedEntity_t *ent;
-
-	ent = (sharedEntity_t *)((byte *)sv.gentities + sv.gentitySize*(num));
-
-	return ent;
+sharedEntity_t *SVGentityNum(int num) {
+  sharedEntity_t *ent;
+  ent = (sharedEntity_t *)((byte *)sv.gentities + sv.gentitySize*(num));
+  return ent;
 }
 
 playerState_t *SVGameClientNum( int num ) {
@@ -61,18 +59,18 @@ playerState_t *SVGameClientNum( int num ) {
 	return ps;
 }
 
-svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
-	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
-		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
-	}
-	return &sv.svEntities[ gEnt->s.number ];
+svEntity_t *ServerSvEntityForGentity(sharedEntity_t *gEnt) {
+  if (!gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES) {
+    Com_Error(ERR_DROP, "ServerSvEntityForGentity: bad gEnt");
+  }
+  return &sv.svEntities[gEnt->s.number];
 }
 
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
 	int		num;
 
 	num = svEnt - sv.svEntities;
-	return SV_GentityNum( num );
+	return SVGentityNum( num );
 }
 
 /*
@@ -159,13 +157,13 @@ qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 	byte	*mask;
 
 	leafnum = CMPointLeafnum (p1);
-	cluster = CM_LeafCluster (leafnum);
-	area1 = CM_LeafArea (leafnum);
+	cluster = CMLeafCluster (leafnum);
+	area1 = CMLeafArea (leafnum);
 	mask = CMClusterPVS (cluster);
 
 	leafnum = CMPointLeafnum (p2);
-	cluster = CM_LeafCluster (leafnum);
-	area2 = CM_LeafArea (leafnum);
+	cluster = CMLeafCluster (leafnum);
+	area2 = CMLeafArea (leafnum);
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
 	if (!CM_AreasConnected (area1, area2))
@@ -189,13 +187,13 @@ qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2)
 	byte	*mask;
 
 	leafnum = CMPointLeafnum (p1);
-	cluster = CM_LeafCluster (leafnum);
-	area1 = CM_LeafArea (leafnum);
+	cluster = CMLeafCluster (leafnum);
+	area1 = CMLeafArea (leafnum);
 	mask = CMClusterPVS (cluster);
 
 	leafnum = CMPointLeafnum (p2);
-	cluster = CM_LeafCluster (leafnum);
-	area2 = CM_LeafArea (leafnum);
+	cluster = CMLeafCluster (leafnum);
+	area2 = CMLeafArea (leafnum);
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
@@ -212,7 +210,7 @@ SV_AdjustAreaPortalState
 void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
 	svEntity_t	*svEnt;
 
-	svEnt = SV_SvEntityForGentity( ent );
+	svEnt = ServerSvEntityForGentity( ent );
 	if ( svEnt->areanum2 == -1 ) {
 		return;
 	}

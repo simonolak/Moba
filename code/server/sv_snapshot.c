@@ -256,23 +256,23 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 
 /*
 ===============
-SV_AddEntToSnapshot
+SVAddEntToSnapshot
 ===============
 */
-static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
-	// if we have already added this entity to this snapshot, don't add again
-	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
-		return;
-	}
-	svEnt->snapshotCounter = sv.snapshotCounter;
+static void SVAddEntToSnapshot(svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums) {
+  // if we have already added this entity to this snapshot, don't add again
+  if (svEnt->snapshotCounter == sv.snapshotCounter) {
+    return;
+  }
+  svEnt->snapshotCounter = sv.snapshotCounter;
 
-	// if we are full, silently discard entities
-	if ( eNums->numSnapshotEntities == MAX_SNAPSHOT_ENTITIES ) {
-		return;
-	}
+  // if we are full, silently discard entities
+  if (eNums->numSnapshotEntities == MAX_SNAPSHOT_ENTITIES) {
+    return;
+  }
 
-	eNums->snapshotEntities[ eNums->numSnapshotEntities ] = gEnt->s.number;
-	eNums->numSnapshotEntities++;
+  eNums->snapshotEntities[eNums->numSnapshotEntities] = gEnt->s.number;
+  eNums->numSnapshotEntities++;
 }
 
 /*
@@ -300,18 +300,18 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
   }
 
   leafnum = CMPointLeafnum(origin);
-  clientarea = CM_LeafArea(leafnum);
-  clientcluster = CM_LeafCluster(leafnum);
+  clientarea = CMLeafArea(leafnum);
+  clientcluster = CMLeafCluster(leafnum);
 
   // calculate the visible areas
-  frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
+  frame->areabytes = CMWriteAreaBits(frame->areabits, clientarea);
 
   clientpvs = CMClusterPVS(clientcluster);
 
   c_fullsend = 0;
 
   for (e = 0; e < sv.num_entities; e++) {
-    ent = SV_GentityNum(e);
+    ent = SVGentityNum(e);
 
     // never send entities that aren't linked in
     if (!ent->r.linked) {
@@ -348,7 +348,7 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
         continue;
     }
 
-    svEnt = SV_SvEntityForGentity(ent);
+    svEnt = ServerSvEntityForGentity(ent);
 
     // don't double add an entity through portals
     if (svEnt->snapshotCounter == sv.snapshotCounter) {
@@ -357,7 +357,7 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
 
     // broadcast entities are always sent
     if (ent->r.svFlags & SVF_BROADCAST) {
-      SV_AddEntToSnapshot(svEnt, ent, eNums);
+      SVAddEntToSnapshot(svEnt, ent, eNums);
       continue;
     }
 
@@ -403,7 +403,7 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
     }
 
     // add it
-    SV_AddEntToSnapshot(svEnt, ent, eNums);
+    SVAddEntToSnapshot(svEnt, ent, eNums);
 
     // if its a portal entity, add everything visible from its camera position
     if (ent->r.svFlags & SVF_PORTAL) {
@@ -470,7 +470,7 @@ static void SVBuildClientSnapshot(client_t *client) {
   // be regenerated from the playerstate
   clientNum = frame->ps.clientNum;
   if (clientNum < 0 || clientNum >= MAX_GENTITIES) {
-    Com_Error(ERR_DROP, "SV_SvEntityForGentity: bad gEnt");
+    Com_Error(ERR_DROP, "ServerSvEntityForGentity: bad gEnt");
   }
   svEnt = &sv.svEntities[clientNum];
 
@@ -501,7 +501,7 @@ static void SVBuildClientSnapshot(client_t *client) {
   frame->num_entities = 0;
   frame->first_entity = svs.nextSnapshotEntities;
   for (i = 0; i < entityNumbers.numSnapshotEntities; i++) {
-    ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
+    ent = SVGentityNum(entityNumbers.snapshotEntities[i]);
     state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
     *state = ent->s;
     svs.nextSnapshotEntities++;

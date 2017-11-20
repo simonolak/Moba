@@ -423,47 +423,41 @@ qboolean	CM_AreasConnected( int area1, int area2 ) {
 	return qfalse;
 }
 
-
 /*
 =================
-CM_WriteAreaBits
+CMWriteAreaBits
 
 Writes a bit vector of all the areas
 that are in the same flood as the area parameter
 Returns the number of bytes needed to hold all the bits.
 
-The bits are OR'd in, so you can CM_WriteAreaBits from multiple
+The bits are OR'd in, so you can CMWriteAreaBits from multiple
 viewpoints and get the union of all visible areas.
 
 This is used to cull non-visible entities from snapshots
 =================
 */
-int CM_WriteAreaBits (byte *buffer, int area)
-{
-	int		i;
-	int		floodnum;
-	int		bytes;
+int CMWriteAreaBits(byte *buffer, int area) {
+  int		i;
+  int		floodnum;
+  int		bytes;
 
-	bytes = (cm.numAreas+7)>>3;
+  bytes = (cm.numAreas + 7) >> 3;
 
 #ifndef BSPC
-	if (cm_noAreas->integer || area == -1)
+  if (cm_noAreas->integer || area == -1)
 #else
-	if ( area == -1)
+  if ( area == -1)
 #endif
-	{	// for debugging, send everything
-		Com_Memset (buffer, 255, bytes);
-	}
-	else
-	{
-		floodnum = cm.areas[area].floodnum;
-		for (i=0 ; i<cm.numAreas ; i++)
-		{
-			if (cm.areas[i].floodnum == floodnum || area == -1)
-				buffer[i>>3] |= 1<<(i&7);
-		}
-	}
+  {	// for debugging, send everything
+    Com_Memset(buffer, 255, bytes);
+  } else {
+    floodnum = cm.areas[area].floodnum;
+    for (i = 0; i < cm.numAreas; i++) {
+      if (cm.areas[i].floodnum == floodnum || area == -1)
+        buffer[i >> 3] |= 1 << (i & 7);
+    }
+  }
 
-	return bytes;
+  return bytes;
 }
-

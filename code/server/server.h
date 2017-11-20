@@ -125,7 +125,7 @@ typedef struct client_s {
 	int				lastMessageNum;		// for delta compression
 	int				lastClientCommand;	// reliable client message sequence
 	char			lastClientCommandString[MAX_STRING_CHARS];
-	sharedEntity_t	*gentity;			// SV_GentityNum(clientnum)
+	sharedEntity_t	*gentity;			// SVGentityNum(clientnum)
 	char			name[MAX_NAME_LENGTH];			// extracted from userinfo, high bits masked
 
 	// downloading
@@ -312,9 +312,9 @@ void SVSendClientSnapshot( client_t *client );
 // sv_game.c
 //
 int	SV_NumForGentity( sharedEntity_t *ent );
-sharedEntity_t *SV_GentityNum( int num );
+sharedEntity_t *SVGentityNum( int num );
 playerState_t *SVGameClientNum( int num );
-svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
+svEntity_t	*ServerSvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );

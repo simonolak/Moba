@@ -59,7 +59,7 @@ int SV_BotAllocateClient(void) {
 		return -1;
 	}
 
-	cl->gentity = SV_GentityNum( i );
+	cl->gentity = SVGentityNum( i );
 	cl->gentity->s.number = i;
 	cl->state = CS_ACTIVE;
 	cl->lastPacketTime = svs.time;

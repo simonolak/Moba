@@ -169,7 +169,7 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	svEntity_t		*scan;
 	worldSector_t	*ws;
 
-	ent = SV_SvEntityForGentity( gEnt );
+	ent = ServerSvEntityForGentity( gEnt );
 
 	gEnt->r.linked = qfalse;
 
@@ -213,7 +213,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	float		*origin, *angles;
 	svEntity_t	*ent;
 
-	ent = SV_SvEntityForGentity( gEnt );
+	ent = ServerSvEntityForGentity( gEnt );
 
 	if ( ent->worldSector ) {
 		SV_UnlinkEntity( gEnt );	// unlink from old position
@@ -297,7 +297,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 
 	// set areas, even from clusters that don't fit in the entity array
 	for (i=0 ; i<num_leafs ; i++) {
-		area = CM_LeafArea (leafs[i]);
+		area = CMLeafArea (leafs[i]);
 		if (area != -1) {
 			// doors may legally straggle two areas,
 			// but nothing should evern need more than that
@@ -317,7 +317,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	// store as many explicit clusters as we can
 	ent->numClusters = 0;
 	for (i=0 ; i < num_leafs ; i++) {
-		cluster = CM_LeafCluster( leafs[i] );
+		cluster = CMLeafCluster( leafs[i] );
 		if ( cluster != -1 ) {
 			ent->clusternums[ent->numClusters++] = cluster;
 			if ( ent->numClusters == MAX_ENT_CLUSTERS ) {
@@ -328,7 +328,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 
 	// store off a last cluster if we need to
 	if ( i != num_leafs ) {
-		ent->lastCluster = CM_LeafCluster( lastLeaf );
+		ent->lastCluster = CMLeafCluster( lastLeaf );
 	}
 
 	gEnt->r.linkcount++;
@@ -470,7 +470,7 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 	clipHandle_t	clipHandle;
 	float			*origin, *angles;
 
-	touch = SV_GentityNum( entityNum );
+	touch = SVGentityNum( entityNum );
 
 	Com_Memset(trace, 0, sizeof(trace_t));
 
@@ -519,7 +519,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 	num = SV_AreaEntities( clip->boxmins, clip->boxmaxs, touchlist, MAX_GENTITIES);
 
 	if ( clip->passEntityNum != ENTITYNUM_NONE ) {
-		passOwnerNum = ( SV_GentityNum( clip->passEntityNum ) )->r.ownerNum;
+		passOwnerNum = ( SVGentityNum( clip->passEntityNum ) )->r.ownerNum;
 		if ( passOwnerNum == ENTITYNUM_NONE ) {
 			passOwnerNum = -1;
 		}
@@ -531,7 +531,7 @@ void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		if ( clip->trace.allsolid ) {
 			return;
 		}
-		touch = SV_GentityNum( touchlist[i] );
+		touch = SVGentityNum( touchlist[i] );
 
 		// see if we should ignore this entity
 		if ( clip->passEntityNum != ENTITYNUM_NONE ) {
@@ -672,7 +672,7 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 		if ( touch[i] == passEntityNum ) {
 			continue;
 		}
-		hit = SV_GentityNum( touch[i] );
+		hit = SVGentityNum( touch[i] );
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( hit );
 		angles = hit->s.angles;
