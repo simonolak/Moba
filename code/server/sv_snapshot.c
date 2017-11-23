@@ -112,109 +112,105 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 	MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
 }
 
-
-
 /*
 ==================
-SV_WriteSnapshotToClient
+SVWriteSnapshotToClient
 ==================
 */
-static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
-	clientSnapshot_t	*frame, *oldframe;
-	int					lastframe;
-	int					i;
-	int					snapFlags;
+static void SVWriteSnapshotToClient(client_t *client, msg_t *msg) {
+  clientSnapshot_t	*frame, *oldframe;
+  int					lastframe;
+  int					i;
+  int					snapFlags;
 
-	// this is the snapshot we are creating
-	frame = &client->frames[ client->netchan.outgoingSequence & PACKET_MASK ];
+  // this is the snapshot we are creating
+  frame = &client->frames[client->netchan.outgoingSequence & PACKET_MASK];
 
-	// try to use a previous frame as the source for delta compressing the snapshot
-	if ( client->deltaMessage <= 0 || client->state != CS_ACTIVE ) {
-		// client is asking for a retransmit
-		oldframe = NULL;
-		lastframe = 0;
-	} else if ( client->netchan.outgoingSequence - client->deltaMessage 
-		>= (PACKET_BACKUP - 3) ) {
-		// client hasn't gotten a good message through in a long time
-		Com_DPrintf ("%s: Delta request from out of date packet.\n", client->name);
-		oldframe = NULL;
-		lastframe = 0;
-	} else {
-		// we have a valid snapshot to delta from
-		oldframe = &client->frames[ client->deltaMessage & PACKET_MASK ];
-		lastframe = client->netchan.outgoingSequence - client->deltaMessage;
+  // try to use a previous frame as the source for delta compressing the snapshot
+  if (client->deltaMessage <= 0 || client->state != CS_ACTIVE) {
+    // client is asking for a retransmit
+    oldframe = NULL;
+    lastframe = 0;
+  } else if (client->netchan.outgoingSequence - client->deltaMessage
+    >= (PACKET_BACKUP - 3)) {
+    // client hasn't gotten a good message through in a long time
+    Com_DPrintf("%s: Delta request from out of date packet.\n", client->name);
+    oldframe = NULL;
+    lastframe = 0;
+  } else {
+    // we have a valid snapshot to delta from
+    oldframe = &client->frames[client->deltaMessage & PACKET_MASK];
+    lastframe = client->netchan.outgoingSequence - client->deltaMessage;
 
-		// the snapshot's entities may still have rolled off the buffer, though
-		if ( oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities ) {
-			Com_DPrintf ("%s: Delta request from out of date entities.\n", client->name);
-			oldframe = NULL;
-			lastframe = 0;
-		}
-	}
+    // the snapshot's entities may still have rolled off the buffer, though
+    if (oldframe->first_entity <= svs.nextSnapshotEntities - svs.numSnapshotEntities) {
+      Com_DPrintf("%s: Delta request from out of date entities.\n", client->name);
+      oldframe = NULL;
+      lastframe = 0;
+    }
+  }
 
-	MSGWriteByte (msg, svc_snapshot);
+  MSGWriteByte(msg, svc_snapshot);
 
-	// NOTE, MRE: now sent at the start of every message from server to client
-	// let the client know which reliable clientCommands we have received
-	//MSGWriteLong( msg, client->lastClientCommand );
+  // NOTE, MRE: now sent at the start of every message from server to client
+  // let the client know which reliable clientCommands we have received
+  //MSGWriteLong( msg, client->lastClientCommand );
 
-	// send over the current server time so the client can drift
-	// its view of time to try to match
-	MSGWriteLong (msg, svs.time);
+  // send over the current server time so the client can drift
+  // its view of time to try to match
+  MSGWriteLong(msg, svs.time);
 
-	// what we are delta'ing from
-	MSGWriteByte (msg, lastframe);
+  // what we are delta'ing from
+  MSGWriteByte(msg, lastframe);
 
-	snapFlags = svs.snapFlagServerBit;
-	if ( client->rateDelayed ) {
-		snapFlags |= SNAPFLAG_RATE_DELAYED;
-	}
-	if ( client->state != CS_ACTIVE ) {
-		snapFlags |= SNAPFLAG_NOT_ACTIVE;
-	}
+  snapFlags = svs.snapFlagServerBit;
+  if (client->rateDelayed) {
+    snapFlags |= SNAPFLAG_RATE_DELAYED;
+  }
+  if (client->state != CS_ACTIVE) {
+    snapFlags |= SNAPFLAG_NOT_ACTIVE;
+  }
 
-	MSGWriteByte (msg, snapFlags);
+  MSGWriteByte(msg, snapFlags);
 
-	// send over the areabits
-	MSGWriteByte (msg, frame->areabytes);
-	MSGWriteData (msg, frame->areabits, frame->areabytes);
+  // send over the areabits
+  MSGWriteByte(msg, frame->areabytes);
+  MSGWriteData(msg, frame->areabits, frame->areabytes);
 
-	// delta encode the playerstate
-	if ( oldframe ) {
-		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
-	} else {
-		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
-	}
+  // delta encode the playerstate
+  if (oldframe) {
+    MSG_WriteDeltaPlayerstate(msg, &oldframe->ps, &frame->ps);
+  } else {
+    MSG_WriteDeltaPlayerstate(msg, NULL, &frame->ps);
+  }
 
-	// delta encode the entities
-	SV_EmitPacketEntities (oldframe, frame, msg);
+  // delta encode the entities
+  SV_EmitPacketEntities(oldframe, frame, msg);
 
-	// padding for rate debugging
-	if ( sv_padPackets->integer ) {
-		for ( i = 0 ; i < sv_padPackets->integer ; i++ ) {
-			MSGWriteByte (msg, svc_nop);
-		}
-	}
+  // padding for rate debugging
+  if (sv_padPackets->integer) {
+    for (i = 0; i < sv_padPackets->integer; i++) {
+      MSGWriteByte(msg, svc_nop);
+    }
+  }
 }
-
 
 /*
 ==================
-SV_UpdateServerCommandsToClient
-
+SVUpdateServerCommandsToClient
 (re)send all server commands the client hasn't acknowledged yet
 ==================
 */
-void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
-	int		i;
+void SVUpdateServerCommandsToClient(client_t *client, msg_t *msg) {
+  int		i;
 
-	// write any unacknowledged serverCommands
-	for ( i = client->reliableAcknowledge + 1 ; i <= client->reliableSequence ; i++ ) {
-		MSGWriteByte( msg, svc_serverCommand );
-		MSGWriteLong( msg, i );
-		MSG_WriteString( msg, client->reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
-	}
-	client->reliableSent = client->reliableSequence;
+  // write any unacknowledged serverCommands
+  for (i = client->reliableAcknowledge + 1; i <= client->reliableSequence; i++) {
+    MSGWriteByte(msg, svc_serverCommand);
+    MSGWriteLong(msg, i);
+    MSGWriteString(msg, client->reliableCommands[i & (MAX_RELIABLE_COMMANDS - 1)]);
+  }
+  client->reliableSent = client->reliableSequence;
 }
 
 /*
@@ -252,7 +248,6 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 
 	return 1;
 }
-
 
 /*
 ===============
@@ -363,10 +358,10 @@ static void SVAddEntitiesVisibleFromPoint(vec3_t origin, clientSnapshot_t *frame
 
     // ignore if not touching a PV leaf
     // check area
-    if (!CM_AreasConnected(clientarea, svEnt->areanum)) {
+    if (!CMAreasConnected(clientarea, svEnt->areanum)) {
       // doors can legally straddle two areas, so
       // we may need to check another one
-      if (!CM_AreasConnected(clientarea, svEnt->areanum2)) {
+      if (!CMAreasConnected(clientarea, svEnt->areanum2)) {
         continue;		// blocked by a door
       }
     }
@@ -545,54 +540,53 @@ static int SVRateMsec(client_t *client, int messageSize) {
 
 /*
 =======================
-SV_SendMessageToClient
-
+SVSendMessageToClient
 Called by SVSendClientSnapshot and SV_SendClientGameState
 =======================
 */
-void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
-	int			rateMsec;
+void SVSendMessageToClient(msg_t *msg, client_t *client) {
+  int			rateMsec;
 
-	// record information about the message
-	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
-	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
-	client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
+  // record information about the message
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSize = msg->cursize;
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageSent = svs.time;
+  client->frames[client->netchan.outgoingSequence & PACKET_MASK].messageAcked = -1;
 
-	// send the datagram
-	SV_Netchan_Transmit( client, msg );	//msg->cursize, msg->data );
+  // send the datagram
+  SVNetchanTransmit(client, msg);	//msg->cursize, msg->data );
 
-	// set nextSnapshotTime based on rate and requested number of updates
+  // set nextSnapshotTime based on rate and requested number of updates
 
-	// local clients get snapshots every frame
-	// TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=491
-	// added sv_lanForceRate check
-	if ( client->netchan.remoteAddress.type == NA_LOOPBACK || (sv_lanForceRate->integer && Sys_IsLANAddress (client->netchan.remoteAddress)) ) {
-		client->nextSnapshotTime = svs.time - 1;
-		return;
-	}
-	
-	// normal rate / snapshotMsec calculation
-	rateMsec = SVRateMsec( client, msg->cursize );
+  // local clients get snapshots every frame
+  // TTimo - https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=491
+  // added sv_lanForceRate check
+  if (client->netchan.remoteAddress.type == NA_LOOPBACK || (sv_lanForceRate->integer && Sys_IsLANAddress(client->netchan.remoteAddress))) {
+    client->nextSnapshotTime = svs.time - 1;
+    return;
+  }
 
-	if ( rateMsec < client->snapshotMsec ) {
-		// never send more packets than this, no matter what the rate is at
-		rateMsec = client->snapshotMsec;
-		client->rateDelayed = qfalse;
-	} else {
-		client->rateDelayed = qtrue;
-	}
+  // normal rate / snapshotMsec calculation
+  rateMsec = SVRateMsec(client, msg->cursize);
 
-	client->nextSnapshotTime = svs.time + rateMsec;
+  if (rateMsec < client->snapshotMsec) {
+    // never send more packets than this, no matter what the rate is at
+    rateMsec = client->snapshotMsec;
+    client->rateDelayed = qfalse;
+  } else {
+    client->rateDelayed = qtrue;
+  }
 
-	// don't pile up empty snapshots while connecting
-	if ( client->state != CS_ACTIVE ) {
-		// a gigantic connection message may have already put the nextSnapshotTime
-		// more than a second away, so don't shorten it
-		// do shorten if client is downloading
-		if ( !*client->downloadName && client->nextSnapshotTime < svs.time + 1000 ) {
-			client->nextSnapshotTime = svs.time + 1000;
-		}
-	}
+  client->nextSnapshotTime = svs.time + rateMsec;
+
+  // don't pile up empty snapshots while connecting
+  if (client->state != CS_ACTIVE) {
+    // a gigantic connection message may have already put the nextSnapshotTime
+    // more than a second away, so don't shorten it
+    // do shorten if client is downloading
+    if (!*client->downloadName && client->nextSnapshotTime < svs.time + 1000) {
+      client->nextSnapshotTime = svs.time + 1000;
+    }
+  }
 }
 
 /*
@@ -622,22 +616,22 @@ void SVSendClientSnapshot(client_t *client) {
   MSGWriteLong(&msg, client->lastClientCommand);
 
   // (re)send any reliable server commands
-  SV_UpdateServerCommandsToClient(client, &msg);
+  SVUpdateServerCommandsToClient(client, &msg);
 
   // send over all the relevant entityState_t
   // and the playerState_t
-  SV_WriteSnapshotToClient(client, &msg);
+  SVWriteSnapshotToClient(client, &msg);
 
   // Add any download data if the client is downloading
-  SV_WriteDownloadToClient(client, &msg);
+  SVWriteDownloadToClient(client, &msg);
 
   // check for overflow
   if (msg.overflowed) {
     Com_Printf("WARNING: msg overflowed for %s\n", client->name);
-    MSG_Clear(&msg);
+    MSGClear(&msg);
   }
 
-  SV_SendMessageToClient(&msg, client);
+  SVSendMessageToClient(&msg, client);
 }
 
 /*

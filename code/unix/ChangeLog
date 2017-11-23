@@ -937,7 +937,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
 	* SOS: up to date with todays snapshot.
 	Note: got the date wrong, comment used was bk010205. Duh.
 
-	* code/server/sv_snapshot.c (SV_UpdateServerCommandsToClient): below. 
+	* code/server/sv_snapshot.c (SVUpdateServerCommandsToClient): below. 
 	* code/server/sv_main.c (SV_ReplacePendingServerCommands): new (SOS).
 	* code/server/server.h: reliableSent (SOS).
 
@@ -2540,7 +2540,7 @@ TODO: the Mac port seems stable, but outputs a bunch of warnings..
         unix_main.c (dlopen bug and event buffers), unix_net.c (readcount),
 	matha.s (assembly warning).
 
-	* code/server/sv_client.c (SV_WriteDownloadToClient): 
+	* code/server/sv_client.c (SVWriteDownloadToClient): 
 	No effective change  on FS_SV_FOpenFileRead call, they reworked 
 	autodownload some more seemingly.
 

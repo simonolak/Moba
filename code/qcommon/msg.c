@@ -60,12 +60,11 @@ void MSGInitOOB( msg_t *buf, byte *data, int length ) {
 	buf->oob = qtrue;
 }
 
-void MSG_Clear( msg_t *buf ) {
-	buf->cursize = 0;
-	buf->overflowed = qfalse;
-	buf->bit = 0;					//<- in bits
+void MSGClear(msg_t *buf) {
+  buf->cursize = 0;
+  buf->overflowed = qfalse;
+  buf->bit = 0;					//<- in bits
 }
-
 
 void MSGBitstream( msg_t *buf ) {
 	buf->oob = qfalse;
@@ -83,14 +82,13 @@ void MSG_BeginReadingOOB( msg_t *msg ) {
 	msg->oob = qtrue;
 }
 
-void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src)
-{
-	if (length<src->cursize) {
-		Com_Error( ERR_DROP, "MSG_Copy: can't copy into a smaller msg_t buffer");
-	}
-	Com_Memcpy(buf, src, sizeof(msg_t));
-	buf->data = data;
-	Com_Memcpy(buf->data, src->data, src->cursize);
+void MSGCopy(msg_t *buf, byte *data, int length, msg_t *src) {
+  if (length < src->cursize) {
+    Com_Error(ERR_DROP, "MSGCopy: can't copy into a smaller msg_t buffer");
+  }
+  Com_Memcpy(buf, src, sizeof(msg_t));
+  buf->data = data;
+  Com_Memcpy(buf->data, src->data, src->cursize);
 }
 
 /*
@@ -298,30 +296,30 @@ void MSG_WriteFloat( msg_t *sb, float f ) {
 	MSG_WriteBits( sb, dat.l, 32 );
 }
 
-void MSG_WriteString( msg_t *sb, const char *s ) {
-	if ( !s ) {
-		MSGWriteData (sb, "", 1);
-	} else {
-		int		l,i;
-		char	string[MAX_STRING_CHARS];
+void MSGWriteString(msg_t *sb, const char *s) {
+  if (!s) {
+    MSGWriteData(sb, "", 1);
+  } else {
+    int		l, i;
+    char	string[MAX_STRING_CHARS];
 
-		l = strlen( s );
-		if ( l >= MAX_STRING_CHARS ) {
-			Com_Printf( "MSG_WriteString: MAX_STRING_CHARS" );
-			MSGWriteData (sb, "", 1);
-			return;
-		}
-		Q_strncpyz( string, s, sizeof( string ) );
+    l = strlen(s);
+    if (l >= MAX_STRING_CHARS) {
+      Com_Printf("MSGWriteString: MAX_STRING_CHARS");
+      MSGWriteData(sb, "", 1);
+      return;
+    }
+    Q_strncpyz(string, s, sizeof(string));
 
-		// get rid of 0xff chars, because old clients don't like them
-		for ( i = 0 ; i < l ; i++ ) {
-			if ( ((byte *)string)[i] > 127 ) {
-				string[i] = '.';
-			}
-		}
+    // get rid of 0xff chars, because old clients don't like them
+    for (i = 0; i < l; i++) {
+      if (((byte *)string)[i] > 127) {
+        string[i] = '.';
+      }
+    }
 
-		MSGWriteData (sb, string, l+1);
-	}
+    MSGWriteData(sb, string, l + 1);
+  }
 }
 
 void MSG_WriteBigString( msg_t *sb, const char *s ) {
@@ -333,7 +331,7 @@ void MSG_WriteBigString( msg_t *sb, const char *s ) {
 
 		l = strlen( s );
 		if ( l >= BIG_INFO_STRING ) {
-			Com_Printf( "MSG_WriteString: BIG_INFO_STRING" );
+			Com_Printf( "MSGWriteString: BIG_INFO_STRING" );
 			MSGWriteData (sb, "", 1);
 			return;
 		}

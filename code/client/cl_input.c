@@ -722,7 +722,7 @@ void CL_WritePacket( void ) {
 	for ( i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
 		MSGWriteByte( &buf, clc_clientCommand );
 		MSGWriteLong( &buf, i );
-		MSG_WriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
+		MSGWriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
 	}
 
 	// we want to send all the usercmds that were generated in the last

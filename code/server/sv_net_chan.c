@@ -156,7 +156,7 @@ void SVNetchanTransmitNextFragment(client_t *client) {
 
 /*
 ===============
-SV_Netchan_Transmit
+SVNetchanTransmit
 TTimo
 https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=462
 if there are some unsent fragments (which may happen if the snapshots
@@ -164,25 +164,24 @@ and the gamestate are fragmenting, and collide on send for instance)
 then buffer them and make sure they get sent in correct order
 ================
 */
-
-void SV_Netchan_Transmit( client_t *client, msg_t *msg) {	//int length, const byte *data ) {
-	MSGWriteByte( msg, svc_EOF );
-	if (client->netchan.unsentFragments) {
-		netchan_buffer_t *netbuf;
-		Com_DPrintf("#462 SV_Netchan_Transmit: unsent fragments, stacked\n");
-		netbuf = (netchan_buffer_t *)Z_Malloc(sizeof(netchan_buffer_t));
-		// store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
-		MSG_Copy(&netbuf->msg, netbuf->msgBuffer, sizeof( netbuf->msgBuffer ), msg);
-		netbuf->next = NULL;
-		// insert it in the queue, the message will be encoded and sent later
-		*client->netchan_end_queue = netbuf;
-		client->netchan_end_queue = &(*client->netchan_end_queue)->next;
-		// emit the next fragment of the current message for now
-		Netchan_TransmitNextFragment(&client->netchan);
-	} else {
-		SVNetchanEncode( client, msg );
-		NetchanTransmit( &client->netchan, msg->cursize, msg->data );
-	}
+void SVNetchanTransmit(client_t *client, msg_t *msg) {	//int length, const byte *data ) {
+  MSGWriteByte(msg, svc_EOF);
+  if (client->netchan.unsentFragments) {
+    netchan_buffer_t *netbuf;
+    Com_DPrintf("#462 SVNetchanTransmit: unsent fragments, stacked\n");
+    netbuf = (netchan_buffer_t *)Z_Malloc(sizeof(netchan_buffer_t));
+    // store the msg, we can't store it encoded, as the encoding depends on stuff we still have to finish sending
+    MSGCopy(&netbuf->msg, netbuf->msgBuffer, sizeof(netbuf->msgBuffer), msg);
+    netbuf->next = NULL;
+    // insert it in the queue, the message will be encoded and sent later
+    *client->netchan_end_queue = netbuf;
+    client->netchan_end_queue = &(*client->netchan_end_queue)->next;
+    // emit the next fragment of the current message for now
+    Netchan_TransmitNextFragment(&client->netchan);
+  } else {
+    SVNetchanEncode(client, msg);
+    NetchanTransmit(&client->netchan, msg->cursize, msg->data);
+  }
 }
 
 /*

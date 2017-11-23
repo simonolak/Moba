@@ -45,7 +45,7 @@ typedef struct {
 
 void MSGInit (msg_t *buf, byte *data, int length);
 void MSGInitOOB( msg_t *buf, byte *data, int length );
-void MSG_Clear (msg_t *buf);
+void MSGClear (msg_t *buf);
 void MSGWriteData (msg_t *buf, const void *data, int length);
 void MSGBitstream( msg_t *buf );
 
@@ -53,7 +53,7 @@ void MSGBitstream( msg_t *buf );
 // copy a msg_t in case we need to store it as is for a bit
 // (as I needed this to keep an msg_t from a static var for later use)
 // sets data buffer as MSGInit does prior to do the copy
-void MSG_Copy(msg_t *buf, byte *data, int length, msg_t *src);
+void MSGCopy(msg_t *buf, byte *data, int length, msg_t *src);
 
 struct usercmd_s;
 struct entityState_s;
@@ -66,7 +66,7 @@ void MSGWriteByte (msg_t *sb, int c);
 void MSGWriteShort (msg_t *sb, int c);
 void MSGWriteLong (msg_t *sb, int c);
 void MSG_WriteFloat (msg_t *sb, float f);
-void MSG_WriteString (msg_t *sb, const char *s);
+void MSGWriteString (msg_t *sb, const char *s);
 void MSG_WriteBigString (msg_t *sb, const char *s);
 void MSG_WriteAngle16 (msg_t *sb, float f);
 

@@ -166,7 +166,7 @@ qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 	area2 = CMLeafArea (leafnum);
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
-	if (!CM_AreasConnected (area1, area2))
+	if (!CMAreasConnected (area1, area2))
 		return qfalse;		// a door blocks sight
 	return qtrue;
 }
@@ -417,7 +417,7 @@ int SV_GameSystemCalls( int *args ) {
 		SV_AdjustAreaPortalState( VMA(1), args[2] );
 		return 0;
 	case G_AREAS_CONNECTED:
-		return CM_AreasConnected( args[1], args[2] );
+		return CMAreasConnected( args[1], args[2] );
 
 	case G_BOT_ALLOCATE_CLIENT:
 		return SV_BotAllocateClient();

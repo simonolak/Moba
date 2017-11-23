@@ -568,7 +568,7 @@ void SV_SendClientGameState( client_t *client ) {
 	// we have to do this cause we send the client->reliableSequence
 	// with a gamestate and it sets the clc.serverCommandSequence at
 	// the client side
-	SV_UpdateServerCommandsToClient( client, &msg );
+	SVUpdateServerCommandsToClient( client, &msg );
 
 	// send the gamestate
 	MSGWriteByte( &msg, svc_gamestate );
@@ -602,7 +602,7 @@ void SV_SendClientGameState( client_t *client ) {
 	MSGWriteLong( &msg, sv.checksumFeed);
 
 	// deliver this to the client
-	SV_SendMessageToClient( &msg, client );
+	SVSendMessageToClient( &msg, client );
 }
 
 
@@ -734,186 +734,183 @@ void SV_BeginDownload_f( client_t *cl ) {
 	// Kill any existing download
 	SVCloseDownload( cl );
 
-	// cl->downloadName is non-zero now, SV_WriteDownloadToClient will see this and open
+	// cl->downloadName is non-zero now, SVWriteDownloadToClient will see this and open
 	// the file itself
 	Q_strncpyz( cl->downloadName, Cmd_Argv(1), sizeof(cl->downloadName) );
 }
 
 /*
 ==================
-SV_WriteDownloadToClient
-
+SVWriteDownloadToClient
 Check to see if the client wants a file, open it if needed and start pumping the client
-Fill up msg with data 
+Fill up msg with data
 ==================
 */
-void SV_WriteDownloadToClient( client_t *cl , msg_t *msg )
-{
-	int curindex;
-	int rate;
-	int blockspersnap;
-	int idPack, missionPack;
-	char errorMessage[1024];
+void SVWriteDownloadToClient(client_t *cl, msg_t *msg) {
+  int curindex;
+  int rate;
+  int blockspersnap;
+  int idPack, missionPack;
+  char errorMessage[1024];
 
-	if (!*cl->downloadName)
-		return;	// Nothing being downloaded
+  if (!*cl->downloadName)
+    return;	// Nothing being downloaded
 
-	if (!cl->download) {
-		// We open the file here
+  if (!cl->download) {
+    // We open the file here
 
-		Com_Printf( "clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName );
+    Com_Printf("clientDownload: %d : begining \"%s\"\n", cl - svs.clients, cl->downloadName);
 
-		missionPack = FS_idPak(cl->downloadName, "missionpack");
-		idPack = missionPack || FS_idPak(cl->downloadName, "baseq3");
+    missionPack = FS_idPak(cl->downloadName, "missionpack");
+    idPack = missionPack || FS_idPak(cl->downloadName, "baseq3");
 
-		if ( !sv_allowDownload->integer || idPack ||
-			( cl->downloadSize = FS_SV_FOpenFileRead( cl->downloadName, &cl->download ) ) <= 0 ) {
-			// cannot auto-download file
-			if (idPack) {
-				Com_Printf("clientDownload: %d : \"%s\" cannot download id pk3 files\n", cl - svs.clients, cl->downloadName);
-				if (missionPack) {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload Team Arena file \"%s\"\n"
-									"The Team Arena mission pack can be found in your local game store.", cl->downloadName);
-				}
-				else {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
-				}
-			} else if ( !sv_allowDownload->integer ) {
-				Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
-				if (sv_pure->integer) {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
-										"You will need to get this file elsewhere before you "
-										"can connect to this pure server.\n", cl->downloadName);
-				} else {
-					Com_sprintf(errorMessage, sizeof(errorMessage), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
-                    "The server you are connecting to is not a pure server, "
-                    "set autodownload to No in your settings and you might be "
-                    "able to join the game anyway.\n", cl->downloadName);
-				}
-			} else {
+    if (!sv_allowDownload->integer || idPack ||
+      (cl->downloadSize = FS_SV_FOpenFileRead(cl->downloadName, &cl->download)) <= 0) {
+      // cannot auto-download file
+      if (idPack) {
+        Com_Printf("clientDownload: %d : \"%s\" cannot download id pk3 files\n", cl - svs.clients, cl->downloadName);
+        if (missionPack) {
+          Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload Team Arena file \"%s\"\n"
+            "The Team Arena mission pack can be found in your local game store.", cl->downloadName);
+        } else {
+          Com_sprintf(errorMessage, sizeof(errorMessage), "Cannot autodownload id pk3 file \"%s\"", cl->downloadName);
+        }
+      } else if (!sv_allowDownload->integer) {
+        Com_Printf("clientDownload: %d : \"%s\" download disabled", cl - svs.clients, cl->downloadName);
+        if (sv_pure->integer) {
+          Com_sprintf(errorMessage, sizeof(errorMessage), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+            "You will need to get this file elsewhere before you "
+            "can connect to this pure server.\n", cl->downloadName);
+        } else {
+          Com_sprintf(errorMessage, sizeof(errorMessage), "Could not download \"%s\" because autodownloading is disabled on the server.\n\n"
+            "The server you are connecting to is not a pure server, "
+            "set autodownload to No in your settings and you might be "
+            "able to join the game anyway.\n", cl->downloadName);
+        }
+      } else {
         // NOTE TTimo this is NOT supposed to happen unless bug in our filesystem scheme?
         //   if the pk3 is referenced, it must have been found somewhere in the filesystem
-				Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName);
-				Com_sprintf(errorMessage, sizeof(errorMessage), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName);
-			}
-			MSGWriteByte( msg, svc_download );
-			MSGWriteShort( msg, 0 ); // client is expecting block zero
-			MSGWriteLong( msg, -1 ); // illegal file size
-			MSG_WriteString( msg, errorMessage );
+        Com_Printf("clientDownload: %d : \"%s\" file not found on server\n", cl - svs.clients, cl->downloadName);
+        Com_sprintf(errorMessage, sizeof(errorMessage), "File \"%s\" not found on server for autodownloading.\n", cl->downloadName);
+      }
+      MSGWriteByte(msg, svc_download);
+      MSGWriteShort(msg, 0); // client is expecting block zero
+      MSGWriteLong(msg, -1); // illegal file size
+      MSGWriteString(msg, errorMessage);
 
-			*cl->downloadName = 0;
-			return;
-		}
- 
-		// Init
-		cl->downloadCurrentBlock = cl->downloadClientBlock = cl->downloadXmitBlock = 0;
-		cl->downloadCount = 0;
-		cl->downloadEOF = qfalse;
-	}
+      *cl->downloadName = 0;
+      return;
+    }
 
-	// Perform any reads that we need to
-	while (cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW &&
-		cl->downloadSize != cl->downloadCount) {
+    // Init
+    cl->downloadCurrentBlock = cl->downloadClientBlock = cl->downloadXmitBlock = 0;
+    cl->downloadCount = 0;
+    cl->downloadEOF = qfalse;
+  }
 
-		curindex = (cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW);
+  // Perform any reads that we need to
+  while (cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW &&
+    cl->downloadSize != cl->downloadCount) {
 
-		if (!cl->downloadBlocks[curindex])
-			cl->downloadBlocks[curindex] = Z_Malloc( MAX_DOWNLOAD_BLKSIZE );
+    curindex = (cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW);
 
-		cl->downloadBlockSize[curindex] = FS_Read( cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download );
+    if (!cl->downloadBlocks[curindex])
+      cl->downloadBlocks[curindex] = Z_Malloc(MAX_DOWNLOAD_BLKSIZE);
 
-		if (cl->downloadBlockSize[curindex] < 0) {
-			// EOF right now
-			cl->downloadCount = cl->downloadSize;
-			break;
-		}
+    cl->downloadBlockSize[curindex] = FS_Read(cl->downloadBlocks[curindex], MAX_DOWNLOAD_BLKSIZE, cl->download);
 
-		cl->downloadCount += cl->downloadBlockSize[curindex];
+    if (cl->downloadBlockSize[curindex] < 0) {
+      // EOF right now
+      cl->downloadCount = cl->downloadSize;
+      break;
+    }
 
-		// Load in next block
-		cl->downloadCurrentBlock++;
-	}
+    cl->downloadCount += cl->downloadBlockSize[curindex];
 
-	// Check to see if we have eof condition and add the EOF block
-	if (cl->downloadCount == cl->downloadSize &&
-		!cl->downloadEOF &&
-		cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW) {
+    // Load in next block
+    cl->downloadCurrentBlock++;
+  }
 
-		cl->downloadBlockSize[cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW] = 0;
-		cl->downloadCurrentBlock++;
+  // Check to see if we have eof condition and add the EOF block
+  if (cl->downloadCount == cl->downloadSize &&
+    !cl->downloadEOF &&
+    cl->downloadCurrentBlock - cl->downloadClientBlock < MAX_DOWNLOAD_WINDOW) {
 
-		cl->downloadEOF = qtrue;  // We have added the EOF block
-	}
+    cl->downloadBlockSize[cl->downloadCurrentBlock % MAX_DOWNLOAD_WINDOW] = 0;
+    cl->downloadCurrentBlock++;
 
-	// Loop up to window size times based on how many blocks we can fit in the
-	// client snapMsec and rate
+    cl->downloadEOF = qtrue;  // We have added the EOF block
+  }
 
-	// based on the rate, how many bytes can we fit in the snapMsec time of the client
-	// normal rate / snapshotMsec calculation
-	rate = cl->rate;
-	if ( sv_maxRate->integer ) {
-		if ( sv_maxRate->integer < 1000 ) {
-			CvarSet( "sv_MaxRate", "1000" );
-		}
-		if ( sv_maxRate->integer < rate ) {
-			rate = sv_maxRate->integer;
-		}
-	}
+  // Loop up to window size times based on how many blocks we can fit in the
+  // client snapMsec and rate
 
-	if (!rate) {
-		blockspersnap = 1;
-	} else {
-		blockspersnap = ( (rate * cl->snapshotMsec) / 1000 + MAX_DOWNLOAD_BLKSIZE ) /
-			MAX_DOWNLOAD_BLKSIZE;
-	}
+  // based on the rate, how many bytes can we fit in the snapMsec time of the client
+  // normal rate / snapshotMsec calculation
+  rate = cl->rate;
+  if (sv_maxRate->integer) {
+    if (sv_maxRate->integer < 1000) {
+      CvarSet("sv_MaxRate", "1000");
+    }
+    if (sv_maxRate->integer < rate) {
+      rate = sv_maxRate->integer;
+    }
+  }
 
-	if (blockspersnap < 0)
-		blockspersnap = 1;
+  if (!rate) {
+    blockspersnap = 1;
+  } else {
+    blockspersnap = ((rate * cl->snapshotMsec) / 1000 + MAX_DOWNLOAD_BLKSIZE) /
+      MAX_DOWNLOAD_BLKSIZE;
+  }
 
-	while (blockspersnap--) {
+  if (blockspersnap < 0)
+    blockspersnap = 1;
 
-		// Write out the next section of the file, if we have already reached our window,
-		// automatically start retransmitting
+  while (blockspersnap--) {
 
-		if (cl->downloadClientBlock == cl->downloadCurrentBlock)
-			return; // Nothing to transmit
+    // Write out the next section of the file, if we have already reached our window,
+    // automatically start retransmitting
 
-		if (cl->downloadXmitBlock == cl->downloadCurrentBlock) {
-			// We have transmitted the complete window, should we start resending?
+    if (cl->downloadClientBlock == cl->downloadCurrentBlock)
+      return; // Nothing to transmit
 
-			//FIXME:  This uses a hardcoded one second timeout for lost blocks
-			//the timeout should be based on client rate somehow
-			if (svs.time - cl->downloadSendTime > 1000)
-				cl->downloadXmitBlock = cl->downloadClientBlock;
-			else
-				return;
-		}
+    if (cl->downloadXmitBlock == cl->downloadCurrentBlock) {
+      // We have transmitted the complete window, should we start resending?
 
-		// Send current block
-		curindex = (cl->downloadXmitBlock % MAX_DOWNLOAD_WINDOW);
+      //FIXME:  This uses a hardcoded one second timeout for lost blocks
+      //the timeout should be based on client rate somehow
+      if (svs.time - cl->downloadSendTime > 1000)
+        cl->downloadXmitBlock = cl->downloadClientBlock;
+      else
+        return;
+    }
 
-		MSGWriteByte( msg, svc_download );
-		MSGWriteShort( msg, cl->downloadXmitBlock );
+    // Send current block
+    curindex = (cl->downloadXmitBlock % MAX_DOWNLOAD_WINDOW);
 
-		// block zero is special, contains file size
-		if ( cl->downloadXmitBlock == 0 )
-			MSGWriteLong( msg, cl->downloadSize );
- 
-		MSGWriteShort( msg, cl->downloadBlockSize[curindex] );
+    MSGWriteByte(msg, svc_download);
+    MSGWriteShort(msg, cl->downloadXmitBlock);
 
-		// Write the block
-		if ( cl->downloadBlockSize[curindex] ) {
-			MSGWriteData( msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex] );
-		}
+    // block zero is special, contains file size
+    if (cl->downloadXmitBlock == 0)
+      MSGWriteLong(msg, cl->downloadSize);
 
-		Com_DPrintf( "clientDownload: %d : writing block %d\n", cl - svs.clients, cl->downloadXmitBlock );
+    MSGWriteShort(msg, cl->downloadBlockSize[curindex]);
 
-		// Move on to the next block
-		// It will get sent with next snap shot.  The rate will keep us in line.
-		cl->downloadXmitBlock++;
+    // Write the block
+    if (cl->downloadBlockSize[curindex]) {
+      MSGWriteData(msg, cl->downloadBlocks[curindex], cl->downloadBlockSize[curindex]);
+    }
 
-		cl->downloadSendTime = svs.time;
-	}
+    Com_DPrintf("clientDownload: %d : writing block %d\n", cl - svs.clients, cl->downloadXmitBlock);
+
+    // Move on to the next block
+    // It will get sent with next snap shot.  The rate will keep us in line.
+    cl->downloadXmitBlock++;
+
+    cl->downloadSendTime = svs.time;
+  }
 }
 
 /*
@@ -1459,7 +1456,7 @@ void SV_ExecuteClientMessage( client_t *cl, msg_t *msg ) {
 
 	// NOTE: when the client message is fux0red the acknowledgement numbers
 	// can be out of range, this could cause the server to send thousands of server
-	// commands which the server thinks are not yet acknowledged in SV_UpdateServerCommandsToClient
+	// commands which the server thinks are not yet acknowledged in SVUpdateServerCommandsToClient
 	if (cl->reliableAcknowledge < cl->reliableSequence - MAX_RELIABLE_COMMANDS) {
 		// usually only hackers create messages like this
 		// it is more annoying for them to let them hanging

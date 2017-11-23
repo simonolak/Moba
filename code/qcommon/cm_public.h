@@ -59,7 +59,7 @@ int			CMLeafCluster (int leafnum);
 int			CMLeafArea (int leafnum);
 
 void		CM_AdjustAreaPortalState( int area1, int area2, qboolean open );
-qboolean	CM_AreasConnected( int area1, int area2 );
+qboolean	CMAreasConnected( int area1, int area2 );
 
 int			CMWriteAreaBits( byte *buffer, int area );
 
