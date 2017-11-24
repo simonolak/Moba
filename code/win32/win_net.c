@@ -151,81 +151,77 @@ void SockadrToNetadr( struct sockaddr *s, netadr_t *a ) {
 	}
 }
 
-
 /*
 =============
-Sys_StringToAdr
-
+SysStringToAdr
 idnewt
 192.246.40.70
 12121212.121212121212
 =============
 */
 #define DO(src,dest)	\
-	copy[0] = s[src];	\
-	copy[1] = s[src + 1];	\
-	sscanf (copy, "%x", &val);	\
-	((struct sockaddr_ipx *)sadr)->dest = val
+  copy[0] = s[src];	\
+  copy[1] = s[src + 1];	\
+  sscanf(copy, "%x", &val);	\
+  ((struct sockaddr_ipx *)sadr)->dest = val
 
-qboolean Sys_StringToSockaddr( const char *s, struct sockaddr *sadr ) {
-	struct hostent	*h;
-	int		val;
-	char	copy[MAX_STRING_CHARS];
-	
-	memset( sadr, 0, sizeof( *sadr ) );
+qboolean SysStringToSockaddr(const char *s, struct sockaddr *sadr) {
+  struct hostent	*h;
+  int		val;
+  char	copy[MAX_STRING_CHARS];
 
-	// check for an IPX address
-	if( ( strlen( s ) == 21 ) && ( s[8] == '.' ) ) {
-		((struct sockaddr_ipx *)sadr)->sa_family = AF_IPX;
-		((struct sockaddr_ipx *)sadr)->sa_socket = 0;
-		copy[2] = 0;
-		DO(0, sa_netnum[0]);
-		DO(2, sa_netnum[1]);
-		DO(4, sa_netnum[2]);
-		DO(6, sa_netnum[3]);
-		DO(9, sa_nodenum[0]);
-		DO(11, sa_nodenum[1]);
-		DO(13, sa_nodenum[2]);
-		DO(15, sa_nodenum[3]);
-		DO(17, sa_nodenum[4]);
-		DO(19, sa_nodenum[5]);
-	}
-	else {
-		((struct sockaddr_in *)sadr)->sin_family = AF_INET;
-		((struct sockaddr_in *)sadr)->sin_port = 0;
+  memset(sadr, 0, sizeof(*sadr));
 
-		if( s[0] >= '0' && s[0] <= '9' ) {
-			*(int *)&((struct sockaddr_in *)sadr)->sin_addr = inet_addr(s);
-		} else {
-			if( ( h = gethostbyname( s ) ) == 0 ) {
-				return 0;
-			}
-			*(int *)&((struct sockaddr_in *)sadr)->sin_addr = *(int *)h->h_addr_list[0];
-		}
-	}
-	
-	return qtrue;
+  // check for an IPX address
+  if ((strlen(s) == 21) && (s[8] == '.')) {
+    ((struct sockaddr_ipx *)sadr)->sa_family = AF_IPX;
+    ((struct sockaddr_ipx *)sadr)->sa_socket = 0;
+    copy[2] = 0;
+    DO(0, sa_netnum[0]);
+    DO(2, sa_netnum[1]);
+    DO(4, sa_netnum[2]);
+    DO(6, sa_netnum[3]);
+    DO(9, sa_nodenum[0]);
+    DO(11, sa_nodenum[1]);
+    DO(13, sa_nodenum[2]);
+    DO(15, sa_nodenum[3]);
+    DO(17, sa_nodenum[4]);
+    DO(19, sa_nodenum[5]);
+  } else {
+    ((struct sockaddr_in *)sadr)->sin_family = AF_INET;
+    ((struct sockaddr_in *)sadr)->sin_port = 0;
+
+    if (s[0] >= '0' && s[0] <= '9') {
+      *(int *)&((struct sockaddr_in *)sadr)->sin_addr = inet_addr(s);
+    } else {
+      if ((h = gethostbyname(s)) == 0) {
+        return 0;
+      }
+      *(int *)&((struct sockaddr_in *)sadr)->sin_addr = *(int *)h->h_addr_list[0];
+    }
+  }
+
+  return qtrue;
 }
 
 #undef DO
 
 /*
 =============
-Sys_StringToAdr
-
+SysStringToAdr
 idnewt
 192.246.40.70
 =============
 */
-qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
-	struct sockaddr sadr;
-	
-	if ( !Sys_StringToSockaddr( s, &sadr ) ) {
-		return qfalse;
-	}
-	
-	SockadrToNetadr( &sadr, a );
-	return qtrue;
+qboolean SysStringToAdr(const char *s, netadr_t *a) {
+  struct sockaddr sadr;
+
+  if (!SysStringToSockaddr(s, &sadr)) {
+    return qfalse;
+  }
+
+  SockadrToNetadr(&sadr, a);
+  return qtrue;
 }
 
 //=============================================================================
@@ -487,7 +483,7 @@ int NET_IPSocket( char *net_interface, int port ) {
 		address.sin_addr.s_addr = INADDR_ANY;
 	}
 	else {
-		Sys_StringToSockaddr( net_interface, (struct sockaddr *)&address );
+		SysStringToSockaddr( net_interface, (struct sockaddr *)&address );
 	}
 
 	if( port == PORT_ANY ) {

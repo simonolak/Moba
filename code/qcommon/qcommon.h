@@ -161,7 +161,7 @@ qboolean	NETCompareAdr (netadr_t a, netadr_t b);
 qboolean	NET_CompareBaseAdr (netadr_t a, netadr_t b);
 qboolean	NET_IsLocalAddress (netadr_t adr);
 const char	*NET_AdrToString (netadr_t a);
-qboolean	NET_StringToAdr ( const char *s, netadr_t *a);
+qboolean	NETStringToAdr ( const char *s, netadr_t *a);
 qboolean	NETGetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message);
 void		NETSleep(int msec);
 
@@ -979,7 +979,7 @@ void	Sys_SetErrorText( const char *text );
 
 void	SysSendPacket( int length, const void *data, netadr_t to );
 
-qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
+qboolean	SysStringToAdr( const char *s, netadr_t *a );
 //Does NOT parse port numbers, only base addresses.
 
 qboolean	Sys_IsLANAddress (netadr_t adr);

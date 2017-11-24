@@ -156,7 +156,7 @@ static int LAN_AddServer(int source, const char *name, const char *address) {
 			break;
 	}
 	if (servers && *count < max) {
-		NET_StringToAdr( address, &adr );
+		NETStringToAdr( address, &adr );
 		for ( i = 0; i < *count; i++ ) {
 			if (NETCompareAdr(servers[i].adr, adr)) {
 				break;
@@ -203,7 +203,7 @@ static void LAN_RemoveServer(int source, const char *addr) {
 	}
 	if (servers) {
 		netadr_t comp;
-		NET_StringToAdr( addr, &comp );
+		NETStringToAdr( addr, &comp );
 		for (i = 0; i < *count; i++) {
 			if (NETCompareAdr( comp, servers[i].adr)) {
 				int j = i;

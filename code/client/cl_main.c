@@ -684,7 +684,7 @@ void CL_MapLoading( void ) {
     cls.keyCatchers = 0;
     SCR_UpdateScreen();
     clc.connectTime = -RETRANSMIT_TIMEOUT;
-    NET_StringToAdr( cls.servername, &clc.serverAddress);
+    NETStringToAdr( cls.servername, &clc.serverAddress);
     // we don't need a challenge on the localhost
 
     CL_CheckForResend();
@@ -809,7 +809,7 @@ void CL_RequestMotd( void ) {
     return;
   }
   Com_Printf( "Resolving %s\n", UPDATE_SERVER_NAME );
-  if ( !NET_StringToAdr( UPDATE_SERVER_NAME, &cls.updateServer  ) ) {
+  if ( !NETStringToAdr( UPDATE_SERVER_NAME, &cls.updateServer  ) ) {
     Com_Printf( "Couldn't resolve address\n" );
     return;
   }
@@ -879,7 +879,7 @@ void CL_RequestAuthorization( void ) {
 
   if ( !cls.authorizeServer.port ) {
     Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-    if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer  ) ) {
+    if ( !NETStringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer  ) ) {
       Com_Printf( "Couldn't resolve address\n" );
       return;
     }
@@ -1051,7 +1051,7 @@ void CL_Connect_f( void ) {
 
   Q_strncpyz( cls.servername, server, sizeof(cls.servername) );
 
-  if (!NET_StringToAdr( cls.servername, &clc.serverAddress) ) {
+  if (!NETStringToAdr( cls.servername, &clc.serverAddress) ) {
     Com_Printf ("Bad server address\n");
     cls.state = CA_DISCONNECTED;
     return;
@@ -1123,7 +1123,7 @@ void CL_Rcon_f( void ) {
 
       return;
     }
-    NET_StringToAdr (rconAddress->string, &to);
+    NETStringToAdr (rconAddress->string, &to);
     if (to.port == 0) {
       to.port = BigShort (PORT_SERVER);
     }
@@ -2644,7 +2644,7 @@ int CL_ServerStatus( char *serverAddress, char *serverStatusString, int maxLen )
     return qfalse;
   }
   // get the address
-  if ( !NET_StringToAdr( serverAddress, &to ) ) {
+  if ( !NETStringToAdr( serverAddress, &to ) ) {
     return qfalse;
   }
   serverStatus = CL_GetServerStatus( to );
@@ -2851,12 +2851,12 @@ void CL_GlobalServers_f( void ) {
   // -1 is used to distinguish a "no response"
 
   if( cls.masterNum == 1 ) {
-    NET_StringToAdr( MASTER_SERVER_NAME, &to );
+    NETStringToAdr( MASTER_SERVER_NAME, &to );
     cls.nummplayerservers = -1;
     cls.pingUpdateSource = AS_MPLAYER;
   }
   else {
-    NET_StringToAdr( MASTER_SERVER_NAME, &to );
+    NETStringToAdr( MASTER_SERVER_NAME, &to );
     cls.numglobalservers = -1;
     cls.pingUpdateSource = AS_GLOBAL;
   }
@@ -3068,7 +3068,7 @@ void CL_Ping_f( void ) {
 
   server = Cmd_Argv(1);
 
-  if ( !NET_StringToAdr( server, &to ) ) {
+  if ( !NETStringToAdr( server, &to ) ) {
     return;
   }
 
@@ -3214,7 +3214,7 @@ void CL_ServerStatus_f(void) {
     server = Cmd_Argv(1);
   }
 
-  if ( !NET_StringToAdr( server, &to ) ) {
+  if ( !NETStringToAdr( server, &to ) ) {
     return;
   }
 
