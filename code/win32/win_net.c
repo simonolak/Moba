@@ -792,53 +792,49 @@ void NET_OpenIPX( void ) {
 	ipx_socket = NET_IPXSocket( port );
 }
 
-
-
 //===================================================================
+static qboolean NETGetCvars(void) {
+  qboolean	modified;
 
-static qboolean NET_GetCvars( void ) {
-	qboolean	modified;
+  modified = qfalse;
 
-	modified = qfalse;
+  if (net_noudp && net_noudp->modified) {
+    modified = qtrue;
+  }
+  net_noudp = Cvar_Get("net_noudp", "0", CVAR_LATCH | CVAR_ARCHIVE);
 
-	if( net_noudp && net_noudp->modified ) {
-		modified = qtrue;
-	}
-	net_noudp = Cvar_Get( "net_noudp", "0", CVAR_LATCH | CVAR_ARCHIVE );
-
-	if( net_noipx && net_noipx->modified ) {
-		modified = qtrue;
-	}
-	net_noipx = Cvar_Get( "net_noipx", "0", CVAR_LATCH | CVAR_ARCHIVE );
-
-
-	if( net_socksEnabled && net_socksEnabled->modified ) {
-		modified = qtrue;
-	}
-	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE );
-
-	if( net_socksServer && net_socksServer->modified ) {
-		modified = qtrue;
-	}
-	net_socksServer = Cvar_Get( "net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE );
-
-	if( net_socksPort && net_socksPort->modified ) {
-		modified = qtrue;
-	}
-	net_socksPort = Cvar_Get( "net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE );
-
-	if( net_socksUsername && net_socksUsername->modified ) {
-		modified = qtrue;
-	}
-	net_socksUsername = Cvar_Get( "net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE );
-
-	if( net_socksPassword && net_socksPassword->modified ) {
-		modified = qtrue;
-	}
-	net_socksPassword = Cvar_Get( "net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE );
+  if (net_noipx && net_noipx->modified) {
+    modified = qtrue;
+  }
+  net_noipx = Cvar_Get("net_noipx", "0", CVAR_LATCH | CVAR_ARCHIVE);
 
 
-	return modified;
+  if (net_socksEnabled && net_socksEnabled->modified) {
+    modified = qtrue;
+  }
+  net_socksEnabled = Cvar_Get("net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE);
+
+  if (net_socksServer && net_socksServer->modified) {
+    modified = qtrue;
+  }
+  net_socksServer = Cvar_Get("net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE);
+
+  if (net_socksPort && net_socksPort->modified) {
+    modified = qtrue;
+  }
+  net_socksPort = Cvar_Get("net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE);
+
+  if (net_socksUsername && net_socksUsername->modified) {
+    modified = qtrue;
+  }
+  net_socksUsername = Cvar_Get("net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE);
+
+  if (net_socksPassword && net_socksPassword->modified) {
+    modified = qtrue;
+  }
+  net_socksPassword = Cvar_Get("net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE);
+
+  return modified;
 }
 
 void NET_Config(qboolean enableNetworking) {
@@ -847,7 +843,7 @@ void NET_Config(qboolean enableNetworking) {
 	qboolean start;
 
 	// get any latched changes to cvars
-	modified = NET_GetCvars();
+	modified = NETGetCvars();
 
 	if (net_noudp->integer && net_noipx->integer) {
 		enableNetworking = qfalse;
@@ -909,23 +905,23 @@ void NET_Config(qboolean enableNetworking) {
 	}
 }
 
-void NET_Init( void ) {
-	int r;
+void NETInit(void) {
+  int r;
 
-	r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
-	if (r) {
-		Com_Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
-		return;
-	}
+  r = WSAStartup(MAKEWORD(1, 1), &winsockdata);
+  if (r) {
+    Com_Printf("WARNING: Winsock initialization failed, returned %d\n", r);
+    return;
+  }
 
-	winsockInitialized = qtrue;
-	Com_Printf( "Winsock Initialized\n" );
+  winsockInitialized = qtrue;
+  Com_Printf("Winsock Initialized\n");
 
-	// this is really just to get the cvars registered
-	NET_GetCvars();
+  // this is really just to get the cvars registered
+  NETGetCvars();
 
-	//FIXME testing!
-	NET_Config(qtrue);
+  //FIXME testing!
+  NET_Config(qtrue);
 }
 
 void NET_Shutdown( void ) {

@@ -77,7 +77,7 @@ textureMode_t modes[] = {
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname ) {
+static long GenerateHashValue( const char *fname ) {
 	int		i;
 	long	hash;
 	char	letter;
@@ -784,7 +784,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 		GL_SelectTexture( 0 );
 	}
 
-	hash = generateHashValue(name);
+	hash = GenerateHashValue(name);
 	image->next = hashTable[hash];
 	hashTable[hash] = image;
 
@@ -1863,7 +1863,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 		return NULL;
 	}
 
-	hash = generateHashValue(name);
+	hash = GenerateHashValue(name);
 
 	//
 	// see if the image is already loaded

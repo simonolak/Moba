@@ -43,7 +43,7 @@ static char **shaderTextHashTable[MAX_SHADERTEXT_HASH];
 return a hash value for the filename
 ================
 */
-static long generateHashValue( const char *fname, const int size ) {
+static long GenerateHashValue( const char *fname, const int size ) {
 	int		i;
 	long	hash;
 	char	letter;
@@ -93,7 +93,7 @@ void R_RemapShader(const char *shaderName, const char *newShaderName, const char
 	// remap all the shaders with the given name
 	// even tho they might have different lightmaps
 	COM_StripExtension( shaderName, strippedName );
-	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
+	hash = GenerateHashValue(strippedName, FILE_HASH_SIZE);
 	for (sh = hashTable[hash]; sh; sh = sh->next) {
 		if (Q_stricmp(sh->name, strippedName) == 0) {
 			if (sh != sh2) {
@@ -2009,7 +2009,7 @@ static shader_t *GeneratePermanentShader( void ) {
 
 	SortNewShader();
 
-	hash = generateHashValue(newShader->name, FILE_HASH_SIZE);
+	hash = GenerateHashValue(newShader->name, FILE_HASH_SIZE);
 	newShader->next = hashTable[hash];
 	hashTable[hash] = newShader;
 
@@ -2298,7 +2298,7 @@ static char *FindShaderInShaderText( const char *shadername ) {
 
 	int i, hash;
 
-	hash = generateHashValue(shadername, MAX_SHADERTEXT_HASH);
+	hash = GenerateHashValue(shadername, MAX_SHADERTEXT_HASH);
 
 	for (i = 0; shaderTextHashTable[hash][i]; i++) {
 		p = shaderTextHashTable[hash][i];
@@ -2353,7 +2353,7 @@ shader_t *R_FindShaderByName( const char *name ) {
 
 	COM_StripExtension( name, strippedName );
 
-	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
+	hash = GenerateHashValue(strippedName, FILE_HASH_SIZE);
 
 	//
 	// see if the shader is already loaded
@@ -2421,7 +2421,7 @@ shader_t *R_FindShader( const char *name, int lightmapIndex, qboolean mipRawImag
 
 	COM_StripExtension( name, strippedName );
 
-	hash = generateHashValue(strippedName, FILE_HASH_SIZE);
+	hash = GenerateHashValue(strippedName, FILE_HASH_SIZE);
 
 	//
 	// see if the shader is already loaded
@@ -2551,7 +2551,7 @@ qhandle_t RE_RegisterShaderFromImage(const char *name, int lightmapIndex, image_
 	int			i, hash;
 	shader_t	*sh;
 
-	hash = generateHashValue(name, FILE_HASH_SIZE);
+	hash = GenerateHashValue(name, FILE_HASH_SIZE);
 	
 	//
 	// see if the shader is already loaded
@@ -2908,7 +2908,7 @@ static void ScanAndLoadShaderFiles( void )
 				break;
 			}
 
-			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
+			hash = GenerateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTableSizes[hash]++;
 			size++;
 			SkipBracedSection(&p);
@@ -2943,7 +2943,7 @@ static void ScanAndLoadShaderFiles( void )
 				break;
 			}
 
-			hash = generateHashValue(token, MAX_SHADERTEXT_HASH);
+			hash = GenerateHashValue(token, MAX_SHADERTEXT_HASH);
 			shaderTextHashTable[hash][shaderTextHashTableSizes[hash]++] = oldp;
 
 			SkipBracedSection(&p);

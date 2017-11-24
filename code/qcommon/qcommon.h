@@ -148,7 +148,7 @@ typedef struct {
 	unsigned short	port;
 } netadr_t;
 
-void NET_Init( void );
+void NETInit( void );
 void NET_Shutdown( void );
 void NET_Restart( void );
 void NET_Config( qboolean enableNetworking );

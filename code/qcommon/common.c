@@ -765,7 +765,7 @@ int Z_AvailableMemory(void) {
 }
 
 void ZFree(void *ptr) {
-  memblock_t	*block, *other;
+  memblock_t *block, *other;
   memzone_t *zone;
 
   if (!ptr) {
@@ -827,7 +827,6 @@ void ZFree(void *ptr) {
     }
   }
 }
-
 
 /*
 ================

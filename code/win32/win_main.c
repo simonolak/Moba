@@ -1159,7 +1159,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   Sys_InitStreamThread();
 
   Com_Init(sys_cmdline);
-  NET_Init();
+  NETInit();
 
   _getcwd(cwd, sizeof(cwd));
   Com_Printf("Working directory: %s\n", cwd);
